@@ -32,6 +32,23 @@ let seed = "";
 let keyword = [];
 let guesses = [];
 
+function saveProgress(hash, guessArr) {
+    try {
+        const store = JSON.parse(localStorage.getItem("vordle") || "{}");
+        store[hash] = { guesses: guessArr, ts: Date.now() };
+        localStorage.setItem("vordle", JSON.stringify(store));
+    } catch (_) {}
+}
+
+function loadProgress(hash) {
+    try {
+        const store = JSON.parse(localStorage.getItem("vordle") || "{}");
+        return store[hash] || null;
+    } catch (_) {
+        return null;
+    }
+}
+
 // Extract phụ âm, nguyên âm, thanh from an array of syllables.
 //
 // NFD canonical ordering puts dot-below (U+0323, nặng, CCC=220) BEFORE
@@ -181,6 +198,8 @@ function buildEmojiGrid() {
 }
 
 function showWin() {
+    saveProgress(seed, guesses);
+
     document.getElementById("input-row").classList.add("hidden");
     document.getElementById("submit-btn").classList.add("hidden");
 
@@ -257,7 +276,7 @@ function init() {
 
     // Day navigation
     const dayIndex = HASH_TIMELINE.indexOf(seed);
-    const todayIndex = HASH_TIMELINE.length - 1; // index 5 = today
+    const todayIndex = HASH_TIMELINE.length - 1;
 
     const dateOffset = dayIndex === -1 ? null : dayIndex - todayIndex;
     const displayDate = (() => {
@@ -265,7 +284,9 @@ function init() {
         if (dateOffset !== null) d.setDate(d.getDate() + dateOffset);
         return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
     })();
-    document.getElementById("current-date").textContent = displayDate;
+
+    const currentDateEl = document.getElementById("current-date");
+    currentDateEl.textContent = displayDate;
 
     const prevBtn = document.getElementById("prev-day");
     const nextBtn = document.getElementById("next-day");
@@ -280,6 +301,20 @@ function init() {
         if (dayIndex !== -1 && dayIndex < todayIndex)
             location.href = `${location.pathname}?seed=${HASH_TIMELINE[dayIndex + 1]}`;
     });
+
+    // Mark days already completed in the nav
+    if (loadProgress(seed)) currentDateEl.classList.add("done");
+    if (dayIndex > 0 && loadProgress(HASH_TIMELINE[dayIndex - 1])) prevBtn.classList.add("done");
+    if (dayIndex !== -1 && dayIndex < todayIndex && loadProgress(HASH_TIMELINE[dayIndex + 1])) nextBtn.classList.add("done");
+
+    // Already-played flow: replay stored guesses and show win panel immediately
+    const stored = loadProgress(seed);
+    if (stored) {
+        guesses = stored.guesses;
+        guesses.forEach((g) => renderResultRow(g, evaluateGuess(g, keyword)));
+        showWin();
+        return;
+    }
 
     document.getElementById("submit-btn").addEventListener("click", handleSubmit);
     document.getElementById("copy-btn").addEventListener("click", handleCopy);
