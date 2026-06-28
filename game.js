@@ -37,7 +37,13 @@ function getDailySeed() {
 }
 
 // Extract phụ âm, nguyên âm, thanh from an array of syllables.
-// NFD decomposition separates tone marks from vowel-shape modifiers cleanly.
+//
+// NFD canonical ordering puts dot-below (U+0323, nặng, CCC=220) BEFORE
+// circumflex (U+0302, CCC=230) and breve (U+0306, CCC=230), so e.g. 'ộ'
+// decomposes to o + U+0323 + U+0302 — the tone mark comes before the shape
+// modifier. To handle this correctly we run two separate passes: one for
+// tones (scan every char), one for base letters (inner loop skips tone marks
+// while still hunting for shape modifiers).
 function extractHint(syllables) {
   const consonants = [];
   const vowels = [];
@@ -45,28 +51,36 @@ function extractHint(syllables) {
 
   for (const syllable of syllables) {
     const nfd = syllable.normalize('NFD').toLowerCase();
-    let i = 0;
 
+    // Pass 1: collect tone marks (order-independent scan)
+    for (const ch of nfd) {
+      if (TONE_MAP.has(ch)) tones.push(TONE_MAP.get(ch));
+    }
+
+    // Pass 2: collect base letters with their vowel-shape modifiers
+    let i = 0;
     while (i < nfd.length) {
       const ch = nfd[i];
 
-      if (TONE_MAP.has(ch)) {
-        tones.push(TONE_MAP.get(ch));
+      if (TONE_MAP.has(ch) || VOWEL_MODIFIER.has(ch) || ch === ' ') {
         i++;
         continue;
       }
 
-      if (VOWEL_MODIFIER.has(ch) || ch === ' ') {
-        i++;
-        continue;
-      }
-
-      // Base letter: collect immediately following vowel-shape modifiers
+      // Base letter found. Collect following vowel-shape modifiers, skipping
+      // any tone marks that appear between base and modifier due to CCC reorder.
       let combined = ch;
       let j = i + 1;
-      while (j < nfd.length && VOWEL_MODIFIER.has(nfd[j])) {
-        combined += nfd[j];
-        j++;
+      while (j < nfd.length) {
+        const c = nfd[j];
+        if (VOWEL_MODIFIER.has(c)) {
+          combined += c;
+          j++;
+        } else if (TONE_MAP.has(c)) {
+          j++; // tone already collected in pass 1; skip it here
+        } else {
+          break;
+        }
       }
 
       const letter = combined.normalize('NFC');
@@ -74,7 +88,6 @@ function extractHint(syllables) {
       if (VOWEL_SET.has(letter)) {
         vowels.push(letter);
       } else if (/^[a-zđ]$/.test(letter)) {
-        // đ = đ
         consonants.push(letter);
       }
 

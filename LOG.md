@@ -8,6 +8,20 @@
 - Share URL: construct from `origin + pathname + '?seed=' + numericIndex` only.
 - CSP: add `<meta http-equiv="Content-Security-Policy">` in `index.html`.
 
+## 2026-06-28 — Bug fix: vowel hint showing 'o' instead of 'ô' (and 'a' instead of 'ă')
+
+Root cause: Unicode NFD canonical ordering. The dot-below combining char (U+0323, nặng tone, CCC=220) has a lower Canonical Combining Class than circumflex (U+0302, CCC=230) and breve (U+0306, CCC=230). NFD sorts combining chars by CCC ascending, so 'ộ' decomposes to `o + U+0323 + U+0302` — tone mark before shape modifier. The original single-pass scanner collected `o` then hit the tone mark and stopped, never seeing the circumflex, and reported `o` instead of `ô`. Same bug affected `ặ` (ă + nặng).
+
+Fix: split `extractHint` into two passes. Pass 1 collects all tone marks by iterating every char (order-independent). Pass 2 collects base letters with shape modifiers, with an inner loop that explicitly skips tone marks while still hunting for modifiers after them.
+
+Vowels using the horn modifier (ư, ơ family) were unaffected: U+031B has CCC=216 < 220, so it always appears before dot-below in NFD and the old code handled it correctly.
+
+Discovered via seed=60 ("bánh bột lọc") showing `a o o` instead of `a o ô`.
+
+## 2026-06-28 — Word list repopulated
+
+Replaced ad-hoc test words with a curated list of 120 entries: 30 each at 2, 3, 4, and 5 syllables. 6- and 7-syllable entries removed. Format changed from array literals to plain strings with `.map(phrase => phrase.split(' '))` for readability. Food and dish names added to each length category (e.g. phở bò, chả lá lốt, trà sữa trân châu, cơm tấm sườn bì chả). Constraint enforced: no word formed by attaching an adjective to a shorter word already in the list.
+
 ## 2026-06-28 — Phase 1 complete
 
 All Phase 1 items shipped:
