@@ -25,6 +25,12 @@ header {
   margin-bottom: 20px;
 }
 
+.site-logo {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+}
+
 h1 {
   font-size: 1.8rem;
   font-weight: 700;
