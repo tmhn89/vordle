@@ -307,6 +307,12 @@ function init() {
     if (dayIndex > 0 && loadProgress(HASH_TIMELINE[dayIndex - 1])) prevBtn.classList.add("done");
     if (dayIndex !== -1 && dayIndex < todayIndex && loadProgress(HASH_TIMELINE[dayIndex + 1])) nextBtn.classList.add("done");
 
+    document.getElementById("copy-btn").addEventListener("click", handleCopy);
+    document.getElementById("clear-btn").addEventListener("click", () => {
+        localStorage.removeItem("vordle");
+        location.reload();
+    });
+
     // Already-played flow: replay stored guesses and show win panel immediately
     const stored = loadProgress(seed);
     if (stored) {
@@ -317,7 +323,6 @@ function init() {
     }
 
     document.getElementById("submit-btn").addEventListener("click", handleSubmit);
-    document.getElementById("copy-btn").addEventListener("click", handleCopy);
 
     document.getElementById("input-row").addEventListener("keydown", (e) => {
         if (e.key !== " ") return;
