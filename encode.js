@@ -15,10 +15,12 @@ if (process.env.WORD_LIST) {
     raw = fs.readFileSync(txtPath, "utf8");
 }
 
+// Lines starting with # are comments (ignored)
 const words = raw
     .split("\n")
     .map((w) => w.trim())
-    .filter(Boolean);
+    .filter((w) => w && !w.startsWith("#"));
+
 const encoded = Buffer.from(JSON.stringify(words)).toString("base64");
 
 fs.writeFileSync(
@@ -41,6 +43,11 @@ if (!process.env.SEED_SALT) {
     console.warn("Warning: SEED_SALT not set, using dev-salt (do not use in production)");
 }
 
+// Day 0: the first word in word_list.txt maps to this date.
+// Words appear in file order: words[0] on DAY_ZERO, words[1] the next day, etc.
+// To add new words for future dates, append to word_list.txt. Never reorder.
+const DAY_ZERO = "2026-06-21";
+
 function hashDate(dateStr) {
     return crypto.createHmac("sha256", salt).update(dateStr).digest("hex").slice(0, 8);
 }
@@ -51,6 +58,13 @@ function addDays(dateStr, n) {
     return d.toISOString().slice(0, 10);
 }
 
+function daysBetween(from, to) {
+    const msPerDay = 86400000;
+    return Math.round(
+        (new Date(to + "T00:00:00Z") - new Date(from + "T00:00:00Z")) / msPerDay,
+    );
+}
+
 const today = new Date().toISOString().slice(0, 10);
 const todayHash = hashDate(today);
 
@@ -59,11 +73,12 @@ const schedule = {};
 for (let i = -7; i <= 53; i++) {
     const date = addDays(today, i);
     const hash = hashDate(date);
-    const idx = parseInt(crypto.createHmac("sha256", salt).update(date).digest("hex").slice(0, 8), 16) % words.length;
-    schedule[hash] = words[idx].split(" ");
+    const dayIndex = daysBetween(DAY_ZERO, date);
+    if (dayIndex < 0 || dayIndex >= words.length) continue;
+    schedule[hash] = words[dayIndex].split(" ");
 }
 
-// Navigation timeline: x days back to today (x - 1 entries, index x = today)
+// Navigation timeline: 7 days back to today
 const lookbackDays = 7;
 const timeline = [];
 for (let i = -1 * lookbackDays; i <= 0; i++) {
@@ -78,4 +93,6 @@ const HASH_TIMELINE = ${JSON.stringify(timeline)};
 `,
     "utf8",
 );
-console.log(`Generated schedule.js (${Object.keys(schedule).length} days, today=${todayHash})`);
+console.log(
+    `Generated schedule.js (${Object.keys(schedule).length} days, today=${todayHash}, day0=${DAY_ZERO})`,
+);
