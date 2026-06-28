@@ -1,0 +1,262 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #121213;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 32px;
+}
+
+/* Header */
+header {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid #3a3a3c;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 6px;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: #818384;
+  margin-top: 4px;
+}
+
+/* Main */
+main {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Hint section */
+.hint {
+  background: #1a1a1b;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hint-label {
+  font-size: 0.7rem;
+  color: #818384;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  min-width: 72px;
+}
+
+.hint-items {
+  font-size: 1rem;
+  color: #e0e0e0;
+  letter-spacing: 3px;
+  word-break: break-all;
+}
+
+/* Keyword info */
+.keyword-info {
+  font-size: 0.85rem;
+  color: #818384;
+  text-align: center;
+}
+
+.keyword-info strong {
+  color: #ccc;
+}
+
+/* Game area */
+.game-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Row wrapper handles overflow for long keywords */
+.row-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.input-row,
+.result-row {
+  display: flex;
+  gap: 6px;
+  min-width: min-content;
+}
+
+/* Inputs */
+.syllable-input {
+  width: 56px;
+  flex: 1 1 44px;
+  min-width: 44px;
+  height: 52px;
+  border: 2px solid #3a3a3c;
+  border-radius: 4px;
+  background: #121213;
+  color: #fff;
+  font-size: 1rem;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.1s;
+}
+
+.syllable-input:focus {
+  border-color: #818384;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.syllable-input.shake {
+  animation: shake 0.35s ease;
+  border-color: #c0392b;
+}
+
+/* Submit button */
+#submit-btn {
+  width: 100%;
+  height: 48px;
+  background: #538d4e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+
+#submit-btn:hover {
+  background: #6aaf65;
+}
+
+/* Results */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.result-row {
+  width: min-content;
+  min-width: 100%;
+}
+
+.result-cell {
+  width: 56px;
+  flex: 1 1 44px;
+  min-width: 44px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 2px 4px;
+  word-break: break-all;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.result-cell.green  { background: #538d4e; }
+.result-cell.yellow { background: #b59f3b; }
+.result-cell.red    { background: #8b2020; }
+
+/* Win panel */
+.win-panel {
+  background: #1a1a1b;
+  border-radius: 8px;
+  padding: 24px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.win-msg {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.win-answer {
+  font-size: 1.1rem;
+  color: #538d4e;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+#share-grid {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  letter-spacing: 2px;
+  white-space: pre;
+  font-family: inherit;
+}
+
+#copy-btn {
+  background: #538d4e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#copy-btn:hover {
+  background: #6aaf65;
+}
+
+.share-url {
+  color: #818384;
+  font-size: 0.75rem;
+  word-break: break-all;
+  text-decoration: none;
+}
+
+.share-url:hover {
+  color: #ccc;
+}
+
+.hidden {
+  display: none !important;
+}

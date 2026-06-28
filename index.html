@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';" />
+        <title>Vordle</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <header>
+            <h1>VORDLE</h1>
+            <p class="subtitle">Tiếng Việt eazy?</p>
+        </header>
+
+        <main>
+            <section class="hint" id="hint">
+                <div class="hint-row">
+                    <span class="hint-label">Phụ âm</span>
+                    <span class="hint-items" id="hint-consonants"></span>
+                </div>
+                <div class="hint-row">
+                    <span class="hint-label">Nguyên âm</span>
+                    <span class="hint-items" id="hint-vowels"></span>
+                </div>
+                <div class="hint-row">
+                    <span class="hint-label">Thanh</span>
+                    <span class="hint-items" id="hint-tones"></span>
+                </div>
+            </section>
+
+            <p class="keyword-info" id="keyword-info"></p>
+
+            <div class="game-area">
+                <div class="row-wrapper">
+                    <div class="input-row" id="input-row"></div>
+                </div>
+
+                <button id="submit-btn" type="button">Gửi</button>
+
+                <div class="results" id="results"></div>
+            </div>
+
+            <div class="win-panel hidden" id="win-panel">
+                <p class="win-msg">Chúc mừng!</p>
+                <p class="win-answer" id="win-answer"></p>
+                <pre id="share-grid"></pre>
+                <button id="copy-btn" type="button">Sao chép kết quả</button>
+                <a id="share-url" class="share-url" href="#"></a>
+            </div>
+        </main>
+
+        <script src="words.js"></script>
+        <script src="game.js"></script>
+    </body>
+</html>
