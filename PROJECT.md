@@ -4,7 +4,9 @@
 
 - [x] Create `words.js` — curated danh sách từ of tục ngữ / thành ngữ (30–50 entries), each entry listing âm tiết as an array
 - [x] Seed + daily word logic — derive từ trong ngày from date; read `?seed=` from URL; fall back to daily
-  - **Security:** parse seed with `parseInt(seed, 10)` immediately; discard if `NaN` or out of bounds; never render raw seed string to DOM
+  - **Security:** seed is an opaque HMAC-SHA256 hex hash; validated against `SCHEDULE` before use; raw URL param never rendered to DOM
+  - **Anti-cheat:** word list base64-encoded in `words.js`; daily schedule generated server-side with `SEED_SALT` secret; `words.js` + `schedule.js` gitignored
+- [x] Day navigation — prev/next buttons in header; range: 5 days ago → today; date displayed from hash position in `HASH_TIMELINE`
 - [x] Hint display — extract and display phụ âm, nguyên âm, thanh in three labeled rows (repeated, sorted alphabetically; ngang omitted)
 - [x] Input boxes — render N ô nhập based on âm tiết count of active từ khóa
 - [x] Submit logic — on submission, evaluate each âm tiết with Wordle-style duplicate handling (green first, then yellow, then red)

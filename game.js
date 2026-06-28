@@ -102,7 +102,7 @@ function renderHint() {
   const { consonants, vowels, tones } = extractHint(keyword);
   document.getElementById('hint-consonants').textContent = consonants.join('  ');
   document.getElementById('hint-vowels').textContent = vowels.join('  ');
-  document.getElementById('hint-tones').textContent = tones.length ? tones.join('  ') : '—';
+  document.getElementById('hint-tones').textContent = tones.join('  ');
 }
 
 function renderInputRow() {
@@ -253,6 +253,31 @@ function init() {
 
   renderHint();
   renderInputRow();
+
+  // Day navigation
+  const dayIndex = HASH_TIMELINE.indexOf(seed);
+  const todayIndex = HASH_TIMELINE.length - 1; // index 5 = today
+
+  const dateOffset = dayIndex === -1 ? null : dayIndex - todayIndex;
+  const displayDate = (() => {
+    const d = new Date();
+    if (dateOffset !== null) d.setDate(d.getDate() + dateOffset);
+    return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  })();
+  document.getElementById('current-date').textContent = displayDate;
+
+  const prevBtn = document.getElementById('prev-day');
+  const nextBtn = document.getElementById('next-day');
+
+  if (dayIndex <= 0) prevBtn.setAttribute('disabled', '');
+  if (dayIndex === -1 || dayIndex >= todayIndex) nextBtn.setAttribute('disabled', '');
+
+  prevBtn.addEventListener('click', () => {
+    if (dayIndex > 0) location.href = `${location.pathname}?seed=${HASH_TIMELINE[dayIndex - 1]}`;
+  });
+  nextBtn.addEventListener('click', () => {
+    if (dayIndex !== -1 && dayIndex < todayIndex) location.href = `${location.pathname}?seed=${HASH_TIMELINE[dayIndex + 1]}`;
+  });
 
   document.getElementById('submit-btn').addEventListener('click', handleSubmit);
   document.getElementById('copy-btn').addEventListener('click', handleCopy);

@@ -56,7 +56,14 @@ for (let i = -7; i <= 53; i++) {
   schedule[hash] = words[idx].split(' ');
 }
 
+// Navigation timeline: 5 days back to today (6 entries, index 5 = today)
+const timeline = [];
+for (let i = -5; i <= 0; i++) {
+  timeline.push(hashDate(addDays(today, i)));
+}
+
 fs.writeFileSync(path.join(__dirname, 'schedule.js'), `const TODAY_HASH = "${todayHash}";
 const SCHEDULE = ${JSON.stringify(schedule)};
+const HASH_TIMELINE = ${JSON.stringify(timeline)};
 `, 'utf8');
 console.log(`Generated schedule.js (${Object.keys(schedule).length} days, today=${todayHash})`);

@@ -1,5 +1,38 @@
 # LOG.md
 
+## 2026-06-28 — Day navigation + tone hint fix
+
+Added prev/next day navigation to the header:
+- `encode.js` now generates `HASH_TIMELINE` — a 6-entry array of hashes from 5 days ago to today (index 5 = today), written into `schedule.js`.
+- `game.js` uses `HASH_TIMELINE.indexOf(seed)` to determine current day position; renders date via offset from `new Date()`; disables prev at index 0, disables next at index 5 (today). Clicking navigates via `?seed=<hash>`.
+- `index.html`: added `.day-nav` bar with `‹` / `›` buttons and `#current-date` span inside the header.
+- `style.css`: added `.day-nav` layout (flexbox, gap), button sizing/hover/disabled states, `#current-date` min-width.
+- Tone hint: when keyword has no tone marks, `#hint-tones` now shows empty string instead of `—`.
+
+## 2026-06-28 — Anti-cheat: salted hash seed system
+
+Replaced plain numeric `?seed=N` with opaque HMAC-SHA256 hashes so players cannot reverse-engineer the date or predict future words.
+
+- `encode.js` (rewritten): reads word list from `WORD_LIST` env var or `word_list.txt`; reads salt from `SEED_SALT` env var (falls back to `'dev-salt'` locally with a warning). Generates `words.js` (base64-encoded word list) and `schedule.js` (61-day hash→syllables map + `TODAY_HASH` + `HASH_TIMELINE`).
+- Hash function: `HMAC-SHA256(salt, dateStr).slice(0, 8)` → 8-char hex. Word index: same HMAC parsed as hex integer, modulo word count.
+- Schedule window: −7 days (so recently shared links still resolve) to +53 days forward.
+- `game.js`: `seed` is now a string (8-char hex). Init reads `?seed=` param; validates against `SCHEDULE`; falls back to `TODAY_HASH`. Share URL unchanged in structure (`?seed=<hash>`).
+- `index.html`: loads `schedule.js` between `words.js` and `game.js`.
+- `.gitignore`: added `schedule.js` (generated at build time, never committed).
+- `deploy.yml`: passes `vars.WORD_LIST` and `secrets.SEED_SALT` as env vars to `node encode.js`.
+- Daily cron added (`0 0 * * *`) so schedule regenerates each day even without a push.
+- `word_list.txt` shuffled (Fisher-Yates) to decouple word position from seed predictability.
+
+Decision: `WORD_LIST` stored as a repo **variable** (readable, not secret — user's choice). `SEED_SALT` stored as a repo **secret** (never exposed client-side).
+
+## 2026-06-28 — Anti-cheat: base64 word list obfuscation
+
+`encode.js` (Node script) encodes the word list as a UTF-8-safe base64 blob and writes `words.js`:
+```js
+const WORDS = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("…"), c => c.charCodeAt(0)))).map(p => p.split(" "));
+```
+`words.js` and `word_list.txt` are gitignored — never committed. CI generates `words.js` from the `WORD_LIST` repo variable at deploy time. Local dev: run `node encode.js` after editing `word_list.txt`.
+
 ## 2026-06-28 — Mobile layout + gh-pages deployment
 
 Mobile CSS polish applied to `style.css`:
