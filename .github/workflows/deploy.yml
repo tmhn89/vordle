@@ -23,10 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Generate words.js from word list
+      - name: Generate words.js and schedule.js
         run: node encode.js
         env:
           WORD_LIST: ${{ vars.WORD_LIST }}
+          SEED_SALT: ${{ secrets.SEED_SALT }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

@@ -28,13 +28,9 @@ const VOWEL_MODIFIER = new Set([CIRCUMFLEX, BREVE, HORN]);
 // Display order: huyền, ngã, hỏi, sắc, nặng
 const TONE_ORDER = ['`', '~', '?', "'", '.'];
 
-let seed = 0;
+let seed = '';
 let keyword = [];
 let guesses = [];
-
-function getDailySeed() {
-  return Math.floor(Date.now() / 86400000) % WORDS.length;
-}
 
 // Extract phụ âm, nguyên âm, thanh from an array of syllables.
 //
@@ -182,7 +178,7 @@ function buildEmojiGrid() {
     const result = evaluateGuess(g, keyword);
     return result.map(r => ({ green: '🟩', yellow: '🟨', red: '🟥' }[r])).join('');
   });
-  return [`Vordle #${seed + 1}`, ...rows].join('\n');
+  return [`Vordle ${seed}`, ...rows].join('\n');
 }
 
 function showWin() {
@@ -192,7 +188,6 @@ function showWin() {
   document.getElementById('win-answer').textContent = keyword.join(' ');
   document.getElementById('share-grid').textContent = buildEmojiGrid();
 
-  // Security: share URL built only from numeric seed — never raw URL param
   const shareUrl = `${location.origin}${location.pathname}?seed=${seed}`;
   const linkEl = document.getElementById('share-url');
   linkEl.textContent = shareUrl;
@@ -242,19 +237,11 @@ function handleCopy() {
 }
 
 function init() {
-  // Security: parse seed as integer immediately; discard invalid values
   const params = new URLSearchParams(window.location.search);
   const raw = params.get('seed');
-  if (raw !== null) {
-    const parsed = parseInt(raw, 10);
-    seed = (!isNaN(parsed) && parsed >= 0 && parsed < WORDS.length)
-      ? parsed
-      : getDailySeed();
-  } else {
-    seed = getDailySeed();
-  }
+  seed = (raw && SCHEDULE[raw]) ? raw : TODAY_HASH;
 
-  keyword = WORDS[seed];
+  keyword = SCHEDULE[seed];
   console.log(`[Vordle] seed=${seed} keyword="${keyword.join(' ')}"`);
 
   const infoEl = document.getElementById('keyword-info');
