@@ -87,7 +87,8 @@ for (let i = -1 * lookbackDays; i <= 0; i++) {
 
 fs.writeFileSync(
     path.join(__dirname, "schedule.js"),
-    `const TODAY_HASH = "${todayHash}";
+    `const TODAY_DATE = "${today}";
+const TODAY_HASH = "${todayHash}";
 const SCHEDULE = ${JSON.stringify(schedule)};
 const HASH_TIMELINE = ${JSON.stringify(timeline)};
 `,

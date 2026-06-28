@@ -280,9 +280,10 @@ function init() {
 
     const dateOffset = dayIndex === -1 ? null : dayIndex - todayIndex;
     const displayDate = (() => {
-        const d = new Date();
-        if (dateOffset !== null) d.setDate(d.getDate() + dateOffset);
-        return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+        if (dateOffset === null) return "";
+        const [y, m, d] = TODAY_DATE.split("-").map(Number);
+        const utc = new Date(Date.UTC(y, m - 1, d + dateOffset));
+        return utc.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
     })();
 
     const currentDateEl = document.getElementById("current-date");
@@ -305,7 +306,8 @@ function init() {
     // Mark days already completed in the nav
     if (loadProgress(seed)) currentDateEl.classList.add("done");
     if (dayIndex > 0 && loadProgress(HASH_TIMELINE[dayIndex - 1])) prevBtn.classList.add("done");
-    if (dayIndex !== -1 && dayIndex < todayIndex && loadProgress(HASH_TIMELINE[dayIndex + 1])) nextBtn.classList.add("done");
+    if (dayIndex !== -1 && dayIndex < todayIndex && loadProgress(HASH_TIMELINE[dayIndex + 1]))
+        nextBtn.classList.add("done");
 
     document.getElementById("copy-btn").addEventListener("click", handleCopy);
     document.getElementById("clear-btn").addEventListener("click", () => {
