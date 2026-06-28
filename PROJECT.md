@@ -18,8 +18,8 @@
 - [ ] Celebration animation — vendor `canvas-confetti` into repo (do not load from CDN)
 - [x] Chia sẻ panel — emoji grid of all lần đoán + hạt giống URL; copy-to-clipboard button
   - **Security:** build share URL as `origin + pathname + '?seed=' + numericIndex` only; never concatenate raw user input or `location.href`
-- [ ] Mobile layout — single-column, touch-friendly, Vietnamese UI labels throughout
-- [ ] gh-pages deployment — configure GitHub Actions to deploy on push to main
+- [x] Mobile layout — single-column, touch-friendly, Vietnamese UI labels throughout
+- [x] gh-pages deployment — configure GitHub Actions to deploy on push to main
 
 ## Phase 3 — Virtual Keyboard (Future)
 

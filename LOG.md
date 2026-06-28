@@ -1,5 +1,17 @@
 # LOG.md
 
+## 2026-06-28 — Mobile layout + gh-pages deployment
+
+Mobile CSS polish applied to `style.css`:
+- Added `:active` pseudo-class alongside `:hover` on all buttons and the share URL link — iOS Safari never fires `:hover` before tap release, so without `:active` there is no visual tap feedback.
+- Fixed `#share-grid` overflow: changed `white-space: pre` → `pre-wrap` + `word-break: break-all` so long emoji rows wrap on narrow screens instead of scrolling horizontally.
+- Added `display: inline-block; padding: 8px 0` to `.share-url` to make the small-text link tappable on touch screens.
+- Added `@media (max-width: 400px)` breakpoint reducing body padding, h1 font size, and input minimum width/height for iPhone SE (375px).
+
+Deployment: created `.github/workflows/deploy.yml` — GitHub Actions workflow that deploys the repo root as a static site to gh-pages on every push to main. No build step. To activate: enable Pages in repo Settings → Pages → Source: GitHub Actions.
+
+Canvas-confetti celebration animation deferred indefinitely (decoration only).
+
 ## 2026-06-28 — Security review (pre-implementation)
 
 - XSS via `?seed=`: always `parseInt()` seed on read, never render raw param to DOM.
