@@ -2,17 +2,17 @@
 
 ## Project overview
 
-A game for Vietnamese word guesser. A key compound word / phrase consist of 2-7 words is hidden. Player receive all the letters and tones used in the keyword. Guessing the keyword by typing each component word in the input boxes.
+A game for Vietnamese word guesser. A key compound word / phrase consist of 2-7 words is hidden. Player receive all the letters and tones used in the keyword. Guessing the keyword by typing each syllable in the input boxes.
 
 ## Rules
 
 1. Generate a keyword from a source (suggest me) - make sure it has meaning.
-2. Provide the player with how many component words, and all the letters & tones.
-3. Generate the number of input boxes corresponding with number of component words
+2. Provide the player with how many syllables, and all the letters & tones.
+3. Generate the number of input boxes corresponding with number of syllables
 4. After user submission, highlight the background of the result box by the rules similar to Wordle
-   a. Green: word is in the keyword and in correct place
-   b. Yellow: word is in the keyword but is in incorrect place
-   c. Red: word is not in the keyword.
+   a. Green: syllable is in the keyword and in correct place
+   b. Yellow: syllable is in the keyword but is in incorrect place
+   c. Red: syllable is not in the keyword.
 
 ## Tech stack
 
