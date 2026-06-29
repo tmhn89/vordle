@@ -1,5 +1,46 @@
 # LOG.md
 
+## 2026-06-29 — Refactors, UX polish, and word list rebalancing
+
+### CSS design tokens
+All inline hex colors, font sizes, spacing values, and layout dimensions extracted to `:root` CSS custom properties in `style.css`. Named variables: `--color-*`, `--font`, `--fs-*`, `--space-*`, `--max-width`, `--btn-size`, `--logo-size`, `--input-height`, `--input-width`, `--input-min-width`, `--submit-height`, `--radius-sm`, `--radius-md`. A handful of one-off sizes remain inline (not worth extracting: 0.75rem share-url, 0.82rem date, 1.1rem win-answer, 1.2rem nav arrows).
+
+### Named constants
+Magic numbers extracted to named constants:
+
+`encode.js` (top of file, after `DAY_ZERO`):
+```js
+const WORDS_PER_DAY = 5;
+const LOOKBACK_DAYS = 1;   // how many past days remain accessible via day-nav
+const FORWARD_DAYS  = 57;  // pre-baked buffer in case the daily CI cron job fails
+const HASH_LENGTH   = 8;
+const MS_PER_DAY    = 86400000;
+```
+
+`game.js` (top of file):
+```js
+const WORDS_PER_DAY     = 5;
+const WIN_DELAY_MS      = 400;
+const COPY_FEEDBACK_MS  = 2000;
+```
+
+### Share header format
+Changed from `Vordle <hash> (N/5)` to `Tiếng Việt eazy? <date> (N/5)`. Date is the same vi-VN-locale string shown in the day-nav (e.g. `29/06/2026`). Required promoting `displayDate` from a local `const` inside `init()` to a module-level `let` so `buildEmojiGrid()` could read it.
+
+### "Từ tiếp theo →" button
+Added to win panel (`index.html`). Hidden by default; `showWin()` removes the `hidden` class when `quizIndex < WORDS_PER_DAY - 1`. Click navigates to `?seed=<hash>&quiz=<quizIndex+2>`. Button shares the same green style as `#copy-btn` via the grouped CSS rule `#next-quiz-btn, #copy-btn { … }`.
+
+### Word list rebalancing (`scramble.js`)
+New script that reads `word_list.txt`, deduplicates (removed "máy vi tính" and "tôn ngộ không"), categorises by syllable count, shuffles, and rebuilds the file so every group of 5 is `[easy, easy, medium, medium, hard]`:
+- easy = 2–3 syllables; medium = 4; hard = 6+; flex = 5 (fills medium or hard as needed)
+- Algorithm: find max balanced days `X` where `2X ≤ easy`, flex covers any medium/hard shortfall, total flex needed ≤ flex available → **28 days**
+- Result: 145 words (140 in 28 balanced days + 5 leftover easy words appended as-is)
+- Run: `node scramble.js` (overwrites `word_list.txt`); then `node encode.js` to rebuild `schedule.js`
+
+**Note:** never reorder existing lines in `word_list.txt`; localStorage progress is keyed by day hash which maps to word position.
+
+---
+
 ## 2026-06-29 — 5 words per day + quiz navigation
 
 Each day now contains 5 puzzles instead of 1. Players use numbered buttons (1–5) to move between puzzles within the same day. Day navigation (prev/next) continues to work as before.

@@ -20,8 +20,13 @@
 - [ ] Celebration animation — vendor `canvas-confetti` into repo (do not load from CDN)
 - [x] Chia sẻ panel — emoji grid of all lần đoán + hạt giống URL; copy-to-clipboard button
   - **Security:** build share URL as `origin + pathname + '?seed=' + numericIndex` only; never concatenate raw user input or `location.href`
+  - Share header format: `Tiếng Việt eazy? <date> (N/5)` — date shown in vi-VN locale, N is 1-based quiz index
 - [x] Mobile layout — single-column, touch-friendly, Vietnamese UI labels throughout
 - [x] gh-pages deployment — configure GitHub Actions to deploy on push to main
+- [x] CSS design tokens — all colors, spacing, font sizes, layout dimensions extracted to `:root` custom properties in `style.css`
+- [x] Named constants — magic numbers extracted to named constants in `encode.js` (`WORDS_PER_DAY`, `LOOKBACK_DAYS`, `FORWARD_DAYS`, `HASH_LENGTH`, `MS_PER_DAY`) and `game.js` (`WORDS_PER_DAY`, `WIN_DELAY_MS`, `COPY_FEEDBACK_MS`)
+- [x] "Từ tiếp theo →" button — shown in win panel when current quiz is not the last of the day; navigates to `?seed=…&quiz=N+1`
+- [x] Balanced word list — `scramble.js` reorganises `word_list.txt` so each group of 5 follows `[easy, easy, medium, medium, hard]` (easy = 2–3 syllables, medium = 4, hard = 6+, flex 5-syllable words fill whichever bucket needs topping up); 2 duplicates removed; 145 words = 28 balanced days + 5 leftover
 
 ## Phase 3 — Virtual Keyboard (Future)
 
