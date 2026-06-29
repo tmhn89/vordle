@@ -205,8 +205,14 @@ function renderInputRow() {
         input.autocapitalize = "off";
         input.spellcheck = false;
         input.addEventListener("input", () => {
+            const hasSpace = /\s/.test(input.value);
             input.value = input.value.replace(/\s+/g, "");
             if (highlightEnabled) updateHintHighlight();
+            if (hasSpace) {
+                const inputs = [...document.querySelectorAll(".syllable-input")];
+                const idx = inputs.indexOf(input);
+                if (idx !== -1 && idx < inputs.length - 1) inputs[idx + 1].focus();
+            }
         });
         row.appendChild(input);
     });
@@ -424,17 +430,12 @@ function init() {
 
     document.getElementById("submit-btn").addEventListener("click", handleSubmit);
 
-    document.getElementById("input-row").addEventListener("keydown", (e) => {
-        if (e.key !== " ") return;
-        e.preventDefault();
-        const inputs = [...document.querySelectorAll(".syllable-input")];
-        const idx = inputs.indexOf(document.activeElement);
-        if (idx !== -1 && idx < inputs.length - 1) inputs[idx + 1].focus();
-    });
-
     document.addEventListener("keydown", (e) => {
         if (e.key === "Enter" && document.getElementById("win-panel").classList.contains("hidden")) {
-            handleSubmit();
+            // Defer until after the keystroke is fully processed so an in-flight
+            // IME composition (Unikey/EVKey) commits its text before we read
+            // input values and clear/refocus boxes for the next guess.
+            setTimeout(handleSubmit, 0);
         }
     });
 }

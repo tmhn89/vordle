@@ -1,5 +1,15 @@
 # LOG.md
 
+## 2026-06-30 — Fix Vietnamese IME race on Space/Enter
+
+Bug: on desktop with a Vietnamese IME (Unikey, EVKey, etc.) running, pressing Space mid-composition would jump focus to the next box before the IME committed its composed syllable, so the finalized word landed in the wrong (already-focused) box. Same race on Enter: submission read/cleared/refocused inputs before composition finished, so the IME's commit landed in the first box of the next guess.
+
+**Root cause:** both handlers acted on `keydown`, which fires before the browser/IME finishes committing composed text (`compositionend` + `input`).
+
+**Fix:**
+- Space handling moved from a `keydown` listener (with `preventDefault`) to the existing `input` listener in `renderInputRow()` — now reacts to the committed value (`/\s/.test(input.value)`), strips the space, and advances focus to the next `.syllable-input` only after the IME has committed.
+- Enter handling deferred with `setTimeout(handleSubmit, 0)` in the document-level `keydown` listener, giving any in-flight composition one tick to commit before `handleSubmit()` reads input values and clears/refocuses for the next guess.
+
 ## 2026-06-30 — Highlight support mode
 
 Added an opt-in "Hỗ trợ" toggle button inside the hint section (default off, persisted in `localStorage["vordle_highlight"]`).
