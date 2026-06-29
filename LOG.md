@@ -1,5 +1,47 @@
 # LOG.md
 
+## 2026-06-29 — Numeric index word scheduling + localStorage progress + UTC date fix
+
+### Numeric index word scheduling
+Replaced `HMAC(salt, date) % poolSize` word selection with position-based scheduling: `words[daysBetween(DAY_ZERO, date)]`. `DAY_ZERO = "2026-06-21"` is a permanent anchor — line 1 of `word_list.txt` maps to that date, line 2 the next day, etc.
+
+Rationale: game maker (sole operator) wanted explicit control over which word appears on which date. File order is the schedule. Rule: never reorder existing lines; only append to add future words.
+
+`encode.js` changes:
+- `DAY_ZERO` constant added.
+- `daysBetween(from, to)` utility: `Math.round((new Date(to+"T00:00:00Z") - new Date(from+"T00:00:00Z")) / 86400000)`.
+- Word selection: `const dayIndex = daysBetween(DAY_ZERO, date); schedule[hash] = words[dayIndex].split(" ");`.
+- Skips dates where `dayIndex < 0` or `dayIndex >= words.length` (no word assigned yet).
+- `HASH_TIMELINE` window extended: 7 days back to today.
+- URL `?seed=` param remains the opaque 8-char HMAC hash — no player-visible integers.
+
+Consequence: if `word_list.txt` lines are ever reordered, stored localStorage progress (keyed by hash) will be re-evaluated against the wrong keyword and display incorrectly. Never reorder.
+
+### localStorage progress tracking
+Players' completed days are persisted in `localStorage` under key `"vordle"`: `{ [hash]: { guesses: string[][], ts: number } }`.
+
+- `saveProgress(hash, guesses)` called first thing in `showWin()`.
+- `loadProgress(hash)` called in `init()`.
+- Already-played flow: if stored entry found, replay all guess rows via `renderResultRow()` then call `showWin()` immediately and return (no submit listener added).
+- Copy and clear listeners attached before the early return so they work on revisit.
+
+UI indicators:
+- `#current-date` gets class `done` → appends ` ✓` in green via CSS `::after`.
+- Prev/next nav buttons get class `done` if adjacent day is completed → 5px green dot at bottom-center via `::after`.
+
+Clear button: `#clear-btn` text button at bottom of `<main>`. Calls `localStorage.removeItem("vordle")` then `location.reload()`.
+
+### UTC date display fix
+Bug: `game.js` used `new Date()` (local clock) for date display while `encode.js` generates `schedule.js` using UTC (`new Date().toISOString().slice(0,10)`). In UTC+7 between midnight local and 07:00 local, the browser reported the next day but schedule still reflected the UTC previous day — displayed date and word were misaligned.
+
+Fix: `encode.js` now writes `const TODAY_DATE = "${today}";` as the first line of `schedule.js`. `game.js` date display was rewritten to use `TODAY_DATE` with `timeZone: "UTC"` in `toLocaleDateString`:
+```js
+const [y, m, d] = TODAY_DATE.split("-").map(Number);
+const utc = new Date(Date.UTC(y, m - 1, d + dateOffset));
+return utc.toLocaleDateString("vi-VN", { ..., timeZone: "UTC" });
+```
+Day boundary is now consistently UTC midnight (= 07:00 Vietnam time). Display and word always agree.
+
 ## 2026-06-28 — Day navigation + tone hint fix
 
 Added prev/next day navigation to the header:

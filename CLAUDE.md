@@ -22,4 +22,7 @@ Run the UI in gh-pages
 ## Project management
 
 - Discuss and clarify the requirements. Split the project to phases with checkboxes in @PROJECT.md
-- Log the decisions to @LOG.md, chronologically. Only add, no delete.
+- After each feature request:
+    - Add bullet points & tick the checkbox in @PROJECT.md
+    - Log the decisions to @LOG.md, chronologically. Only add, no delete.
+    - Modify @README.md if extra step needed to setup the project, both in local and in production
