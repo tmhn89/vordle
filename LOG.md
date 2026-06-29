@@ -1,5 +1,21 @@
 # LOG.md
 
+## 2026-06-29 — localStorage reset on word list change (word fingerprint)
+
+`encode.js` now computes `SHA-256(words.join("\n")).slice(0, 8)` and writes it as `const WORD_FINGERPRINT = "…"` in `schedule.js` (line 3, after `TODAY_HASH`).
+
+`game.js` checks at the top of `init()`:
+```js
+if (localStorage.getItem("vordle_fp") !== WORD_FINGERPRINT) {
+    localStorage.removeItem("vordle");
+    localStorage.setItem("vordle_fp", WORD_FINGERPRINT);
+}
+```
+
+If the fingerprint stored in localStorage differs from the deployed one (e.g. after running `scramble.js` + `encode.js`), all stored progress is cleared before the game starts. The fingerprint is then saved so subsequent loads are unaffected.
+
+Trigger: any change to word count or word order in `word_list.txt` will produce a new fingerprint at the next `node encode.js` run. A daily CI rebuild with an unchanged word list produces the same fingerprint — no spurious resets.
+
 ## 2026-06-29 — Refactors, UX polish, and word list rebalancing
 
 ### CSS design tokens

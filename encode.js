@@ -53,6 +53,8 @@ const FORWARD_DAYS = 57; // pre-baked buffer in case the daily CI cron job fails
 const HASH_LENGTH = 8;
 const MS_PER_DAY = 86400000;
 
+const wordFingerprint = crypto.createHash("sha256").update(words.join("\n")).digest("hex").slice(0, HASH_LENGTH);
+
 function hashDate(dateStr) {
     return crypto.createHmac("sha256", salt).update(dateStr).digest("hex").slice(0, HASH_LENGTH);
 }
@@ -90,6 +92,7 @@ fs.writeFileSync(
     path.join(__dirname, "schedule.js"),
     `const TODAY_DATE = "${today}";
 const TODAY_HASH = "${todayHash}";
+const WORD_FINGERPRINT = "${wordFingerprint}";
 const SCHEDULE = ${JSON.stringify(schedule)};
 const HASH_TIMELINE = ${JSON.stringify(timeline)};
 `,

@@ -277,6 +277,11 @@ function handleCopy() {
 }
 
 function init() {
+    if (localStorage.getItem("vordle_fp") !== WORD_FINGERPRINT) {
+        localStorage.removeItem("vordle");
+        localStorage.setItem("vordle_fp", WORD_FINGERPRINT);
+    }
+
     const params = new URLSearchParams(window.location.search);
     const raw = params.get("seed");
     seed = raw && SCHEDULE[raw] ? raw : TODAY_HASH;
