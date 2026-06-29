@@ -1,5 +1,25 @@
 # LOG.md
 
+## 2026-06-30 — Difficulty metric: character count + named constants in scramble.js
+
+Replaced syllable-count bucketing with total character count (no spaces) as the difficulty metric. Rationale: syllable count ignores syllable complexity — a 3-syllable word with short syllables is easier than a 3-syllable word with long compound vowels and consonant clusters.
+
+Thresholds (set after calibrating against the current word list):
+- easy   ≤ 11 chars  (e.g. "sầu riêng" = 8, "chim cánh cụt" = 11)
+- medium 12–16 chars (e.g. "bánh tráng trộn" = 13, "mẹ chồng nàng dâu" = 16)
+- hard   ≥ 17 chars  (e.g. "có công mài sắt có ngày nên kim" = 24)
+
+Result with 168 words: easy 71 / medium 69 / hard 35 → **34 balanced days** + 5 leftover (3 easy, 1 medium, 1 hard). Previously 6 balanced days under syllable-count system.
+
+All magic numbers in `scramble.js` extracted to named constants at top of file:
+```js
+const EASY_MAX_CHARS   = 11;
+const MEDIUM_MAX_CHARS = 16;
+const EASY_PER_DAY     = 2;
+const MEDIUM_PER_DAY   = 2;
+const HARD_PER_DAY     = 1;
+```
+
 ## 2026-06-29 — localStorage reset on word list change (word fingerprint)
 
 `encode.js` now computes `SHA-256(words.join("\n")).slice(0, 8)` and writes it as `const WORD_FINGERPRINT = "…"` in `schedule.js` (line 3, after `TODAY_HASH`).

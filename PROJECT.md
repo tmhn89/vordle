@@ -27,7 +27,7 @@
 - [x] Named constants — magic numbers extracted to named constants in `encode.js` (`WORDS_PER_DAY`, `LOOKBACK_DAYS`, `FORWARD_DAYS`, `HASH_LENGTH`, `MS_PER_DAY`) and `game.js` (`WORDS_PER_DAY`, `WIN_DELAY_MS`, `COPY_FEEDBACK_MS`)
 - [x] "Từ tiếp theo →" button — shown in win panel when current quiz is not the last of the day; navigates to `?seed=…&quiz=N+1`
 - [x] Word list fingerprint — `encode.js` writes `WORD_FINGERPRINT` (SHA-256 of word list, 8-char hex) into `schedule.js`; `game.js` clears localStorage on mismatch so reordered word lists never corrupt stored progress
-- [x] Balanced word list — `scramble.js` reorganises `word_list.txt` so each group of 5 follows `[easy, easy, medium, medium, hard]` (easy = 2–3 syllables, medium = 4, hard = 6+, flex 5-syllable words fill whichever bucket needs topping up); 2 duplicates removed; 145 words = 28 balanced days + 5 leftover
+- [x] Balanced word list — `scramble.js` reorganises `word_list.txt` so each group of 5 follows `[easy, easy, medium, medium, hard]` (difficulty by char count excl. spaces: easy ≤ 11, medium 12–16, hard ≥ 17); 168 words = 34 balanced days + 5 leftover
 
 ## Phase 3 — Virtual Keyboard (Future)
 

@@ -1,7 +1,6 @@
 // Reorganises word_list.txt so every group of 5 (= one day) follows:
 //   [easy, easy, medium, medium, hard]
-// where easy = 2-3 syllables, medium = 4 syllables, hard = 6+ syllables,
-// and 5-syllable words fill whichever bucket (medium or hard) needs topping up.
+// Difficulty is based on total character count (no spaces); see constants below.
 //
 // Run: node scramble.js
 // Overwrites word_list.txt in place.
@@ -11,7 +10,14 @@ const path = require("path");
 
 const FILE = path.join(__dirname, "word_list.txt");
 
-const raw = fs.readFileSync(FILE, "utf8")
+const EASY_MAX_CHARS = 11;
+const MEDIUM_MAX_CHARS = 16;
+const EASY_PER_DAY = 2;
+const MEDIUM_PER_DAY = 2;
+const HARD_PER_DAY = 1;
+
+const raw = fs
+    .readFileSync(FILE, "utf8")
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith("#"));
@@ -28,21 +34,21 @@ for (const w of raw) {
     }
 }
 
-// Categorise by syllable count (space-separated tokens = syllables)
-const easy = [];        // 2-3 syllables
-const mediumOnly = [];  // exactly 4 syllables
-const flex = [];        // exactly 5 syllables — fills medium or hard as needed
-const hardOnly = [];    // 6+ syllables
+// Categorise by character count (no spaces)
+const easy = []; // ≤ EASY_MAX_CHARS
+const medium = []; // EASY_MAX_CHARS+1 – MEDIUM_MAX_CHARS
+const hard = []; // > MEDIUM_MAX_CHARS
 
 for (const w of words) {
-    const n = w.split(" ").length;
-    if (n <= 3)      easy.push(w);
-    else if (n === 4) mediumOnly.push(w);
-    else if (n === 5) flex.push(w);
-    else             hardOnly.push(w);
+    const len = w.replace(/ /g, "").length;
+    if (len <= EASY_MAX_CHARS) easy.push(w);
+    else if (len <= MEDIUM_MAX_CHARS) medium.push(w);
+    else hard.push(w);
 }
 
-console.log(`easy(2-3): ${easy.length}, medium(4): ${mediumOnly.length}, flex(5): ${flex.length}, hard(6+): ${hardOnly.length}`);
+console.log(
+    `easy(≤${EASY_MAX_CHARS}): ${easy.length}, medium(${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS}): ${medium.length}, hard(≥${MEDIUM_MAX_CHARS + 1}): ${hard.length}`,
+);
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -54,82 +60,70 @@ function shuffle(arr) {
 }
 
 shuffle(easy);
-shuffle(mediumOnly);
-shuffle(flex);
-shuffle(hardOnly);
+shuffle(medium);
+shuffle(hard);
 
-// Compute maximum balanced days:
-//   each day needs 2 easy + 2 medium + 1 hard
-//   flex can cover medium or hard shortfalls
-// Solve: find max X where:
-//   2X ≤ easy.length
-//   flex_m + flex_h ≤ flex.length
-//   flex_m = max(0, 2X - mediumOnly.length)
-//   flex_h = max(0, X   - hardOnly.length)
-let maxDays = 0;
-for (let x = Math.floor(easy.length / 2); x >= 0; x--) {
-    const flexNeededMedium = Math.max(0, 2 * x - mediumOnly.length);
-    const flexNeededHard   = Math.max(0, x     - hardOnly.length);
-    if (flexNeededMedium + flexNeededHard <= flex.length) {
-        maxDays = x;
-        break;
-    }
-}
+// Compute maximum balanced days
+const maxDays = Math.min(
+    Math.floor(easy.length / EASY_PER_DAY),
+    Math.floor(medium.length / MEDIUM_PER_DAY),
+    Math.floor(hard.length / HARD_PER_DAY),
+);
 
-const flexForMedium = Math.max(0, 2 * maxDays - mediumOnly.length);
-const flexForHard   = Math.max(0, maxDays     - hardOnly.length);
+console.log(`Balanced days: ${maxDays}`);
 
-console.log(`Balanced days: ${maxDays} (flex used: ${flexForMedium} as medium, ${flexForHard} as hard)`);
-
-// Build the medium and hard pools
-const mediumPool = [...mediumOnly, ...flex.slice(0, flexForMedium)];
-const hardPool   = [...hardOnly,   ...flex.slice(flexForMedium, flexForMedium + flexForHard)];
-
-// Remaining flex words (if any) go to leftovers
-const leftoverFlex = flex.slice(flexForMedium + flexForHard);
-
-shuffle(mediumPool);
-shuffle(hardPool);
-
-// Build day groups: [easy, easy, medium, medium, hard]
+// Build day groups: [easy×EASY_PER_DAY, medium×MEDIUM_PER_DAY, hard×HARD_PER_DAY]
 const output = [];
 for (let i = 0; i < maxDays; i++) {
-    output.push(easy[i * 2]);
-    output.push(easy[i * 2 + 1]);
-    output.push(mediumPool[i * 2]);
-    output.push(mediumPool[i * 2 + 1]);
-    output.push(hardPool[i]);
+    for (let e = 0; e < EASY_PER_DAY; e++) output.push(easy[i * EASY_PER_DAY + e]);
+    for (let m = 0; m < MEDIUM_PER_DAY; m++) output.push(medium[i * MEDIUM_PER_DAY + m]);
+    for (let h = 0; h < HARD_PER_DAY; h++) output.push(hard[i * HARD_PER_DAY + h]);
 }
 
 // Append leftovers
-const leftoverEasy = easy.slice(maxDays * 2);
-const leftovers = [...leftoverEasy, ...leftoverFlex];
+const leftoverEasy = easy.slice(maxDays * EASY_PER_DAY);
+const leftoverMedium = medium.slice(maxDays * MEDIUM_PER_DAY);
+const leftoverHard = hard.slice(maxDays * HARD_PER_DAY);
+const leftovers = [...leftoverEasy, ...leftoverMedium, ...leftoverHard];
 if (leftovers.length > 0) {
     console.log(`Leftover words appended (${leftovers.length}):`);
-    if (leftoverEasy.length)  console.log(`  easy (2-3 syl): ${leftoverEasy.length}  — ${leftoverEasy.join(", ")}`);
-    if (leftoverFlex.length)  console.log(`  flex (5 syl):   ${leftoverFlex.length}  — ${leftoverFlex.join(", ")}`);
+    if (leftoverEasy.length)
+        console.log(`  easy   (≤${EASY_MAX_CHARS} chr): ${leftoverEasy.length}   — ${leftoverEasy.join(", ")}`);
+    if (leftoverMedium.length)
+        console.log(
+            `  medium (${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS}):   ${leftoverMedium.length} — ${leftoverMedium.join(", ")}`,
+        );
+    if (leftoverHard.length)
+        console.log(`  hard   (≥${MEDIUM_MAX_CHARS + 1} chr): ${leftoverHard.length}   — ${leftoverHard.join(", ")}`);
 
-    // How many more balanced days could these leftovers anchor?
-    const possibleDays = Math.floor(leftoverEasy.length / 2);
+    // How many more balanced days could these leftovers form?
+    const possibleDays = Math.min(
+        Math.floor(leftoverEasy.length / EASY_PER_DAY),
+        Math.floor(leftoverMedium.length / MEDIUM_PER_DAY),
+        Math.floor(leftoverHard.length / HARD_PER_DAY),
+    );
     if (possibleDays > 0) {
-        const needMedium = 2 * possibleDays;
-        const needHard   = possibleDays;
-        // flex leftovers can substitute: fill medium slots first, then hard
-        const flexForM = Math.min(leftoverFlex.length, needMedium);
-        const flexForH = Math.min(leftoverFlex.length - flexForM, needHard);
-        const stillNeedMedium = needMedium - flexForM;
-        const stillNeedHard   = needHard   - flexForH;
-        const unusedEasy = leftoverEasy.length - possibleDays * 2;
-
+        console.log(`  → ${possibleDays} more balanced day(s) possible — no extra words needed`);
+    } else {
         const needs = [];
-        if (stillNeedMedium) needs.push(`${stillNeedMedium} medium (4 syl)`);
-        if (stillNeedHard)   needs.push(`${stillNeedHard} hard (6+ syl)`);
-        const needStr = needs.length ? `add ${needs.join(" + ")} to word_list.txt` : "no extra words needed";
-        console.log(`  → ${possibleDays} more balanced day(s) possible — ${needStr}`);
-        if (unusedEasy) console.log(`  → ${unusedEasy} easy word(s) will remain leftover after that`);
+        const pairsByEasy = Math.floor(leftoverEasy.length / EASY_PER_DAY);
+        const pairsByMedium = Math.floor(leftoverMedium.length / MEDIUM_PER_DAY);
+        const need = Math.max(pairsByEasy, pairsByMedium, leftoverHard.length);
+        if (need > 0) {
+            if (pairsByEasy < need) needs.push(`${(need - pairsByEasy) * EASY_PER_DAY} easy (≤${EASY_MAX_CHARS} chr)`);
+            if (pairsByMedium < need)
+                needs.push(
+                    `${(need - pairsByMedium) * MEDIUM_PER_DAY} medium (${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS} chr)`,
+                );
+            if (leftoverHard.length < need)
+                needs.push(`${(need - leftoverHard.length) * HARD_PER_DAY} hard (≥${MEDIUM_MAX_CHARS + 1} chr)`);
+            console.log(`  → to add ${need} more balanced day(s): add ${needs.join(" + ")} to word_list.txt`);
+        }
     }
     output.push(...leftovers);
 }
 
 fs.writeFileSync(FILE, output.join("\n") + "\n", "utf8");
-console.log(`Written ${output.length} words to word_list.txt (${maxDays} balanced days + ${leftovers.length} leftover)`);
+console.log(
+    `Written ${output.length} words to word_list.txt (${maxDays} balanced days + ${leftovers.length} leftover)`,
+);

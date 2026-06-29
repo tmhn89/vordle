@@ -4,7 +4,7 @@
 
 A game for Vietnamese word guesser. A key compound word / phrase consist of 2-7 words is hidden. Player receive all the letters and tones used in the keyword. Guessing the keyword by typing each syllable in the input boxes.
 
-## Rules
+## Game Rules
 
 1. Generate a keyword from a source (suggest me) - make sure it has meaning.
 2. Provide the player with how many syllables, and all the letters & tones.
@@ -26,3 +26,7 @@ Run the UI in gh-pages
     - Add bullet points & tick the checkbox in @PROJECT.md
     - Log the decisions to @LOG.md, chronologically. Only add, no delete.
     - Modify @README.md if extra step needed to setup the project, both in local and in production
+
+## Coding rules
+
+- Avoid magic number, use constant instead
