@@ -1,5 +1,13 @@
 # LOG.md
 
+## 2026-06-30 — Fix double-submit on Enter during IME composition
+
+When the player pressed Enter to finalize a composed syllable (blue underline on Mac), the submit fired twice. Root cause: Mac IME generates two `keydown` events for the composition-ending Enter — one with `isComposing: true` (ends the IME session) and one with `isComposing: false` (the actual Enter action). Both were hitting the document keydown handler and calling `handleSubmit` twice.
+
+**Fix:** added `!e.isComposing` guard to the Enter keydown handler. The first keydown (isComposing=true) is skipped; `compositionend` fires and commits the text; the second keydown (isComposing=false) calls `handleSubmit()` directly — by that point the input value is already finalized so no `setTimeout` deferral is needed. Also added `e.preventDefault()` to stop Chrome from additionally firing a native click on `#submit-btn`.
+
+No regression when Enter is pressed outside composition (isComposing is always false in that path).
+
 ## 2026-06-30 — Fix Vietnamese IME race on Space/Enter
 
 Bug: on desktop with a Vietnamese IME (Unikey, EVKey, etc.) running, pressing Space mid-composition would jump focus to the next box before the IME committed its composed syllable, so the finalized word landed in the wrong (already-focused) box. Same race on Enter: submission read/cleared/refocused inputs before composition finished, so the IME's commit landed in the first box of the next guess.

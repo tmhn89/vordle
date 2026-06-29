@@ -431,11 +431,14 @@ function init() {
     document.getElementById("submit-btn").addEventListener("click", handleSubmit);
 
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && document.getElementById("win-panel").classList.contains("hidden")) {
-            // Defer until after the keystroke is fully processed so an in-flight
-            // IME composition (Unikey/EVKey) commits its text before we read
-            // input values and clear/refocus boxes for the next guess.
-            setTimeout(handleSubmit, 0);
+        if (e.key === "Enter" && !e.isComposing && document.getElementById("win-panel").classList.contains("hidden")) {
+            // Skip when isComposing: Mac IME fires two Enter keydowns when the player
+            // presses Enter mid-composition — one with isComposing=true (ends the IME
+            // session) and one with isComposing=false (the actual Enter action).
+            // By the time the second fires, compositionend has already committed the
+            // text, so we read the correct value with a direct synchronous call.
+            e.preventDefault(); // prevent Chrome from also firing a click on #submit-btn
+            handleSubmit();
         }
     });
 }
