@@ -1,5 +1,22 @@
 # LOG.md
 
+## 2026-06-30 — Highlight support mode
+
+Added an opt-in "Hỗ trợ" toggle button inside the hint section (default off, persisted in `localStorage["vordle_highlight"]`).
+
+**Behaviour:** when enabled, characters in the phụ âm / nguyên âm / thanh rows that match what the player has typed across all current input boxes are highlighted green in real time. Highlights clear automatically after each submission. Toggling off removes all highlights immediately.
+
+**Implementation:**
+- `index.html`: toggle button (`#highlight-toggle` / `#highlight-toggle-label`) added as `.hint-toggle-row` inside `<section class="hint">`.
+- `game.js`:
+  - `renderHint()` refactored into `renderHintItems(id, items)` — each character is now a `<span class="hint-char" data-char="…">` (built with `createElement`/`textContent`, no `innerHTML`).
+  - `updateHintHighlight()` — runs `extractHint()` on all non-empty input values, builds Sets of used consonants/vowels/tones, toggles `.highlighted` class on matching spans.
+  - `clearHintHighlight()` — removes `.highlighted` from all `.hint-char` spans; called on submit and on toggle-off.
+  - `initHighlightToggle()` — reads localStorage state, wires click handler; called in `init()` before the already-played early return so the toggle works on revisit too.
+- `style.css`:
+  - `.hint-toggle-btn[aria-pressed="true"]` — button border and text turn green when active.
+  - `.hint-char.highlighted` — highlighted characters rendered in `var(--color-green)` bold.
+
 ## 2026-06-30 — Difficulty metric: character count + named constants in scramble.js
 
 Replaced syllable-count bucketing with total character count (no spaces) as the difficulty metric. Rationale: syllable count ignores syllable complexity — a 3-syllable word with short syllables is easier than a 3-syllable word with long compound vowels and consonant clusters.

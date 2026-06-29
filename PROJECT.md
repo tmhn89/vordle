@@ -18,6 +18,7 @@
 ## Phase 2 — Polish & Share
 
 - [ ] Celebration animation — vendor `canvas-confetti` into repo (do not load from CDN)
+- [x] Highlight support mode — opt-in toggle ("Hỗ trợ: Tắt/Bật") in hint section; when on, hint characters matching player's current input are highlighted green in real time; state persisted in localStorage
 - [x] Chia sẻ panel — emoji grid of all lần đoán + hạt giống URL; copy-to-clipboard button
   - **Security:** build share URL as `origin + pathname + '?seed=' + numericIndex` only; never concatenate raw user input or `location.href`
   - Share header format: `Tiếng Việt eazy? <date> (N/5)` — date shown in vi-VN locale, N is 1-based quiz index

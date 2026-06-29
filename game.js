@@ -31,12 +31,14 @@ const TONE_ORDER = ["`", "~", "?", "'", "."];
 const WORDS_PER_DAY = 5;
 const WIN_DELAY_MS = 400;
 const COPY_FEEDBACK_MS = 2000;
+const HIGHLIGHT_LS_KEY = "vordle_highlight";
 
 let seed = "";
 let keyword = [];
 let guesses = [];
 let quizIndex = 0; // 0-based; URL param ?quiz= is 1-based
 let displayDate = "";
+let highlightEnabled = false;
 
 function saveProgress(hash, qi, guessArr) {
     try {
@@ -126,11 +128,67 @@ function extractHint(syllables) {
     return { consonants, vowels, tones };
 }
 
+function renderHintItems(id, items) {
+    const container = document.getElementById(id);
+    container.textContent = "";
+    items.forEach((char, i) => {
+        if (i > 0) container.appendChild(document.createTextNode("  "));
+        const span = document.createElement("span");
+        span.className = "hint-char";
+        span.dataset.char = char;
+        span.textContent = char;
+        container.appendChild(span);
+    });
+}
+
 function renderHint() {
     const { consonants, vowels, tones } = extractHint(keyword);
-    document.getElementById("hint-consonants").textContent = consonants.join("  ");
-    document.getElementById("hint-vowels").textContent = vowels.join("  ");
-    document.getElementById("hint-tones").textContent = tones.join("  ");
+    renderHintItems("hint-consonants", consonants);
+    renderHintItems("hint-vowels", vowels);
+    renderHintItems("hint-tones", tones);
+}
+
+function updateHintHighlight() {
+    const typed = Array.from(document.querySelectorAll(".syllable-input"))
+        .map((inp) => inp.value.trim().toLowerCase().normalize("NFC"))
+        .filter((v) => v.length > 0);
+
+    const { consonants, vowels, tones } =
+        typed.length > 0 ? extractHint(typed) : { consonants: [], vowels: [], tones: [] };
+    const usedConsonants = new Set(consonants);
+    const usedVowels = new Set(vowels);
+    const usedTones = new Set(tones);
+
+    document.querySelectorAll("#hint-consonants .hint-char").forEach((sp) => {
+        sp.classList.toggle("highlighted", usedConsonants.has(sp.dataset.char));
+    });
+    document.querySelectorAll("#hint-vowels .hint-char").forEach((sp) => {
+        sp.classList.toggle("highlighted", usedVowels.has(sp.dataset.char));
+    });
+    document.querySelectorAll("#hint-tones .hint-char").forEach((sp) => {
+        sp.classList.toggle("highlighted", usedTones.has(sp.dataset.char));
+    });
+}
+
+function clearHintHighlight() {
+    document.querySelectorAll(".hint-char").forEach((sp) => sp.classList.remove("highlighted"));
+}
+
+function initHighlightToggle() {
+    highlightEnabled = localStorage.getItem(HIGHLIGHT_LS_KEY) === "1";
+    const btn = document.getElementById("highlight-toggle");
+    const label = document.getElementById("highlight-toggle-label");
+    btn.setAttribute("aria-pressed", String(highlightEnabled));
+    label.textContent = highlightEnabled ? "Bật" : "Tắt";
+
+    btn.addEventListener("click", () => {
+        highlightEnabled = !highlightEnabled;
+        localStorage.setItem(HIGHLIGHT_LS_KEY, highlightEnabled ? "1" : "0");
+        btn.setAttribute("aria-pressed", String(highlightEnabled));
+        label.textContent = highlightEnabled ? "Bật" : "Tắt";
+        if (highlightEnabled) updateHintHighlight();
+        else clearHintHighlight();
+    });
 }
 
 function renderInputRow() {
@@ -148,6 +206,7 @@ function renderInputRow() {
         input.spellcheck = false;
         input.addEventListener("input", () => {
             input.value = input.value.replace(/\s+/g, "");
+            if (highlightEnabled) updateHintHighlight();
         });
         row.appendChild(input);
     });
@@ -259,6 +318,7 @@ function handleSubmit() {
     document.querySelectorAll(".syllable-input").forEach((inp) => {
         inp.value = "";
     });
+    clearHintHighlight();
     document.querySelector(".syllable-input").focus();
 }
 
@@ -350,6 +410,8 @@ function init() {
         localStorage.removeItem("vordle");
         location.reload();
     });
+
+    initHighlightToggle();
 
     // Already-played flow: replay stored guesses and show win panel immediately
     const stored = loadProgress(seed, quizIndex);
