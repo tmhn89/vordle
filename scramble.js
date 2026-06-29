@@ -105,7 +105,29 @@ for (let i = 0; i < maxDays; i++) {
 const leftoverEasy = easy.slice(maxDays * 2);
 const leftovers = [...leftoverEasy, ...leftoverFlex];
 if (leftovers.length > 0) {
-    console.log(`Leftover words appended (${leftovers.length}): ${leftovers.join(", ")}`);
+    console.log(`Leftover words appended (${leftovers.length}):`);
+    if (leftoverEasy.length)  console.log(`  easy (2-3 syl): ${leftoverEasy.length}  — ${leftoverEasy.join(", ")}`);
+    if (leftoverFlex.length)  console.log(`  flex (5 syl):   ${leftoverFlex.length}  — ${leftoverFlex.join(", ")}`);
+
+    // How many more balanced days could these leftovers anchor?
+    const possibleDays = Math.floor(leftoverEasy.length / 2);
+    if (possibleDays > 0) {
+        const needMedium = 2 * possibleDays;
+        const needHard   = possibleDays;
+        // flex leftovers can substitute: fill medium slots first, then hard
+        const flexForM = Math.min(leftoverFlex.length, needMedium);
+        const flexForH = Math.min(leftoverFlex.length - flexForM, needHard);
+        const stillNeedMedium = needMedium - flexForM;
+        const stillNeedHard   = needHard   - flexForH;
+        const unusedEasy = leftoverEasy.length - possibleDays * 2;
+
+        const needs = [];
+        if (stillNeedMedium) needs.push(`${stillNeedMedium} medium (4 syl)`);
+        if (stillNeedHard)   needs.push(`${stillNeedHard} hard (6+ syl)`);
+        const needStr = needs.length ? `add ${needs.join(" + ")} to word_list.txt` : "no extra words needed";
+        console.log(`  → ${possibleDays} more balanced day(s) possible — ${needStr}`);
+        if (unusedEasy) console.log(`  → ${unusedEasy} easy word(s) will remain leftover after that`);
+    }
     output.push(...leftovers);
 }
 
