@@ -1,5 +1,27 @@
 # LOG.md
 
+## 2026-06-29 — 5 words per day + quiz navigation
+
+Each day now contains 5 puzzles instead of 1. Players use numbered buttons (1–5) to move between puzzles within the same day. Day navigation (prev/next) continues to work as before.
+
+**Scheduling**: `word_list.txt` is now consumed in groups of 5 — lines 1–5 = day 0, lines 6–10 = day 1, etc. Days with fewer than 5 lines remaining are skipped. `encode.js` changed: `SCHEDULE[hash]` is now `string[][]` (5 syllable arrays) instead of `string[]`. `DAY_ZERO` and the HMAC hash scheme are unchanged.
+
+**Lookback window** reduced from 7 days to 3 days (`lookbackDays = 3`). HASH_TIMELINE is now 4 entries.
+
+**URL scheme**: `?seed=<day-hash>&quiz=<1-5>`. Missing `?quiz` defaults to 1. `game.js` reads `quizIndex` (0-based internally) from the param.
+
+**Quiz navigator**: 5 numbered buttons added to the header below the day-nav. Active button gets `border-color: #818384; background: #3a3a3c`. Completed button gets `color: #538d4e; border-color: #538d4e`. Clicking navigates to `?seed=…&quiz=N`.
+
+**Progress tracking**: `saveProgress` and `loadProgress` now take a `qi` (0-based quiz index) parameter. `localStorage["vordle"][hash]` is now a nested object keyed by qi: `{ 0: { guesses, ts }, 2: { guesses, ts }, … }`. Old flat-format entries (`{ guesses, ts }` at the hash level) are silently ignored — `store[hash]?.[qi]` returns null for them.
+
+**Day-done logic**: `isDayDone(hash)` returns true only when all 5 quizzes are complete. Day nav completion indicators (green dot on prev/next, ✓ on current date) now use `isDayDone` instead of `loadProgress`.
+
+**Share**: URL includes `&quiz=${quizIndex + 1}`. Emoji grid header shows `Vordle <hash> (N/5)`.
+
+**word_list.txt**: 111 words → 22 complete days (110 words used; 111th orphaned). 17 days fall within the 3-day-back to 57-day-forward schedule window as of 2026-06-29.
+
+**New file**: `test/schedule-shape.js` — validates that generated schedule.js has correct shape (4-entry timeline, each SCHEDULE entry is array of 5 syllable arrays).
+
 ## 2026-06-29 — Numeric index word scheduling + localStorage progress + UTC date fix
 
 ### Numeric index word scheduling

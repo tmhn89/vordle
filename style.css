@@ -6,77 +6,126 @@
     padding: 0;
 }
 
+:root {
+    /* Colors */
+    --color-bg: #121213;
+    --color-surface: #1a1a1b;
+    --color-border: #3a3a3c;
+    --color-border-disabled: #2a2a2c;
+    --color-muted: #818384;
+    --color-text: #fff;
+    --color-text-secondary: #e0e0e0;
+    --color-text-dim: #ccc;
+    --color-green: #538d4e;
+    --color-green-hover: #6aaf65;
+    --color-yellow: #b59f3b;
+    --color-red: #8b2020;
+    --color-red-shake: #c0392b;
+
+    /* Typography */
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --fs-xs: 0.7rem;
+    --fs-sm: 0.8rem;
+    --fs-md: 0.85rem;
+    --fs-base: 1rem;
+    --fs-lg: 1.4rem;
+    --fs-xl: 1.6rem;
+    --fs-2xl: 1.8rem;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Layout */
+    --max-width: 480px;
+    --btn-size: 28px;
+    --logo-size: 64px;
+    --input-height: 52px;
+    --input-width: 56px;
+    --input-min-width: 44px;
+    --submit-height: 48px;
+
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #121213;
-    color: #fff;
+    font-family: var(--font);
+    background: var(--color-bg);
+    color: var(--color-text);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 16px 32px;
+    padding: 0 var(--space-4) var(--space-8);
 }
 
 /* Header */
 header {
     width: 100%;
-    max-width: 480px;
+    max-width: var(--max-width);
     text-align: center;
-    padding: 20px 0 16px;
-    border-bottom: 1px solid #3a3a3c;
-    margin-bottom: 20px;
+    padding: var(--space-5) 0 var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--space-5);
     position: relative;
 }
 
 #clear-btn {
     background: none;
     border: none;
-    color: white;
-    font-size: 0.8rem;
+    color: var(--color-text);
+    font-size: var(--fs-sm);
     cursor: pointer;
-    padding: 4px 6px;
+    padding: var(--space-1) 6px;
     line-height: 1;
 }
 
 #clear-btn:hover {
-    color: #818384;
+    color: var(--color-muted);
 }
 
 .site-logo {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 8px;
+    width: var(--logo-size);
+    height: var(--logo-size);
+    margin-bottom: var(--space-2);
 }
 
 h1 {
-    font-size: 1.8rem;
+    font-size: var(--fs-2xl);
     font-weight: 700;
     letter-spacing: 6px;
 }
 
 .subtitle {
-    font-size: 0.8rem;
-    color: #818384;
-    margin-top: 4px;
+    font-size: var(--fs-sm);
+    color: var(--color-muted);
+    margin-top: var(--space-1);
 }
 
 .day-nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: var(--space-3);
     margin-top: 10px;
 }
 
 .day-nav button {
     background: none;
-    border: 1px solid #3a3a3c;
-    color: #fff;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
     font-size: 1.2rem;
     line-height: 1;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
+    width: var(--btn-size);
+    height: var(--btn-size);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -91,7 +140,7 @@ h1 {
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #538d4e;
+    background: var(--color-green);
     position: absolute;
     bottom: 2px;
     left: 50%;
@@ -99,41 +148,76 @@ h1 {
 }
 
 .day-nav button:disabled {
-    color: #3a3a3c;
-    border-color: #2a2a2c;
+    color: var(--color-border);
+    border-color: var(--color-border-disabled);
     cursor: default;
 }
 
 .day-nav button:not(:disabled):hover {
-    background: #3a3a3c;
+    background: var(--color-border);
 }
 
 #current-date {
     font-size: 0.82rem;
-    color: #818384;
+    color: var(--color-text);
     min-width: 90px;
     text-align: center;
+    font-weight: bold;
 }
 
 #current-date.done::after {
     content: " ✓";
-    color: #538d4e;
+    color: var(--color-green);
+}
+
+/* Quiz navigator */
+.quiz-nav {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+}
+
+.quiz-btn {
+    width: var(--btn-size);
+    height: var(--btn-size);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-text);
+    font-size: var(--fs-md);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.quiz-btn:hover:not(.active) {
+    background: var(--color-border);
+}
+
+.quiz-btn.active {
+    border-color: var(--color-muted);
+    background: var(--color-border);
+}
+
+.quiz-btn.done {
+    color: var(--color-green);
+    border-color: var(--color-green);
 }
 
 /* Main */
 main {
     width: 100%;
-    max-width: 480px;
+    max-width: var(--max-width);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-5);
 }
 
 /* Hint section */
 .hint {
-    background: #1a1a1b;
-    border-radius: 8px;
-    padding: 14px 16px;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: 14px var(--space-4);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -147,8 +231,8 @@ main {
 }
 
 .hint-label {
-    font-size: 0.7rem;
-    color: #818384;
+    font-size: var(--fs-xs);
+    color: var(--color-muted);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.8px;
@@ -157,28 +241,28 @@ main {
 }
 
 .hint-items {
-    font-size: 1rem;
-    color: #e0e0e0;
+    font-size: var(--fs-base);
+    color: var(--color-text-secondary);
     letter-spacing: 3px;
     word-break: break-all;
 }
 
 /* Keyword info */
 .keyword-info {
-    font-size: 0.85rem;
-    color: #818384;
+    font-size: var(--fs-md);
+    color: var(--color-muted);
     text-align: center;
 }
 
 .keyword-info strong {
-    color: #ccc;
+    color: var(--color-text-dim);
 }
 
 /* Game area */
 .game-area {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-3);
 }
 
 /* Row wrapper handles overflow for long keywords */
@@ -196,15 +280,15 @@ main {
 
 /* Inputs */
 .syllable-input {
-    width: 56px;
-    flex: 1 1 44px;
-    min-width: 44px;
-    height: 52px;
-    border: 2px solid #3a3a3c;
-    border-radius: 4px;
-    background: #121213;
-    color: #fff;
-    font-size: 1rem;
+    width: var(--input-width);
+    flex: 1 1 var(--input-min-width);
+    min-width: var(--input-min-width);
+    height: var(--input-height);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: var(--fs-base);
     text-align: center;
     outline: none;
     font-family: inherit;
@@ -212,7 +296,7 @@ main {
 }
 
 .syllable-input:focus {
-    border-color: #818384;
+    border-color: var(--color-muted);
 }
 
 @keyframes shake {
@@ -232,18 +316,18 @@ main {
 
 .syllable-input.shake {
     animation: shake 0.35s ease;
-    border-color: #c0392b;
+    border-color: var(--color-red-shake);
 }
 
 /* Submit button */
 #submit-btn {
     width: 100%;
-    height: 48px;
-    background: #538d4e;
-    color: #fff;
+    height: var(--submit-height);
+    background: var(--color-green);
+    color: var(--color-text);
     border: none;
-    border-radius: 4px;
-    font-size: 1rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-base);
     font-weight: 700;
     cursor: pointer;
     letter-spacing: 2px;
@@ -253,7 +337,7 @@ main {
 
 #submit-btn:hover,
 #submit-btn:active {
-    background: #6aaf65;
+    background: var(--color-green-hover);
 }
 
 /* Results */
@@ -270,59 +354,59 @@ main {
 }
 
 .result-cell {
-    width: 56px;
-    flex: 1 1 44px;
-    min-width: 44px;
-    height: 52px;
+    width: var(--input-width);
+    flex: 1 1 var(--input-min-width);
+    min-width: var(--input-min-width);
+    height: var(--input-height);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-md);
     font-weight: 700;
-    color: #fff;
-    padding: 2px 4px;
+    color: var(--color-text);
+    padding: 2px var(--space-1);
     word-break: break-all;
     text-align: center;
     line-height: 1.2;
 }
 
 .result-cell.green {
-    background: #538d4e;
+    background: var(--color-green);
 }
 .result-cell.yellow {
-    background: #b59f3b;
+    background: var(--color-yellow);
 }
 .result-cell.red {
-    background: #8b2020;
+    background: var(--color-red);
 }
 
 /* Win panel */
 .win-panel {
-    background: #1a1a1b;
-    border-radius: 8px;
-    padding: 24px 20px;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--space-6) var(--space-5);
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-4);
 }
 
 .win-msg {
-    font-size: 1.6rem;
+    font-size: var(--fs-xl);
     font-weight: 700;
 }
 
 .win-answer {
     font-size: 1.1rem;
-    color: #538d4e;
+    color: var(--color-green);
     font-weight: 600;
     letter-spacing: 2px;
 }
 
 #share-grid {
-    font-size: 1.4rem;
+    font-size: var(--fs-lg);
     line-height: 1.5;
     letter-spacing: 2px;
     white-space: pre-wrap;
@@ -331,11 +415,11 @@ main {
 }
 
 #copy-btn {
-    background: #538d4e;
-    color: #fff;
+    background: var(--color-green);
+    color: var(--color-text);
     border: none;
-    border-radius: 4px;
-    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-6);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -344,13 +428,13 @@ main {
 
 #copy-btn:hover,
 #copy-btn:active {
-    background: #6aaf65;
+    background: var(--color-green-hover);
 }
 
 .share-url {
     display: inline-block;
-    padding: 8px 0;
-    color: #818384;
+    padding: var(--space-2) 0;
+    color: var(--color-muted);
     font-size: 0.75rem;
     word-break: break-all;
     text-decoration: none;
@@ -358,7 +442,7 @@ main {
 
 .share-url:hover,
 .share-url:active {
-    color: #ccc;
+    color: var(--color-text-dim);
 }
 
 .hidden {
@@ -367,10 +451,10 @@ main {
 
 @media (max-width: 400px) {
     body {
-        padding: 0 8px 24px;
+        padding: 0 var(--space-2) var(--space-6);
     }
     h1 {
-        font-size: 1.4rem;
+        font-size: var(--fs-lg);
         letter-spacing: 4px;
     }
     .syllable-input {

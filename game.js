@@ -31,22 +31,28 @@ const TONE_ORDER = ["`", "~", "?", "'", "."];
 let seed = "";
 let keyword = [];
 let guesses = [];
+let quizIndex = 0; // 0-based; URL param ?quiz= is 1-based
 
-function saveProgress(hash, guessArr) {
+function saveProgress(hash, qi, guessArr) {
     try {
         const store = JSON.parse(localStorage.getItem("vordle") || "{}");
-        store[hash] = { guesses: guessArr, ts: Date.now() };
+        if (!store[hash]) store[hash] = {};
+        store[hash][qi] = { guesses: guessArr, ts: Date.now() };
         localStorage.setItem("vordle", JSON.stringify(store));
     } catch (_) {}
 }
 
-function loadProgress(hash) {
+function loadProgress(hash, qi) {
     try {
         const store = JSON.parse(localStorage.getItem("vordle") || "{}");
-        return store[hash] || null;
+        return store[hash]?.[qi] || null;
     } catch (_) {
         return null;
     }
+}
+
+function isDayDone(hash) {
+    return [0, 1, 2, 3, 4].every((i) => loadProgress(hash, i) !== null);
 }
 
 // Extract phụ âm, nguyên âm, thanh from an array of syllables.
@@ -194,11 +200,11 @@ function buildEmojiGrid() {
         const result = evaluateGuess(g, keyword);
         return result.map((r) => ({ green: "🟩", yellow: "🟨", red: "🟥" })[r]).join("");
     });
-    return [`Vordle ${seed}`, ...rows].join("\n");
+    return [`Vordle ${seed} (${quizIndex + 1}/5)`, ...rows].join("\n");
 }
 
 function showWin() {
-    saveProgress(seed, guesses);
+    saveProgress(seed, quizIndex, guesses);
 
     document.getElementById("input-row").classList.add("hidden");
     document.getElementById("submit-btn").classList.add("hidden");
@@ -206,7 +212,7 @@ function showWin() {
     document.getElementById("win-answer").textContent = keyword.join(" ");
     document.getElementById("share-grid").textContent = buildEmojiGrid();
 
-    const shareUrl = `${location.origin}${location.pathname}?seed=${seed}`;
+    const shareUrl = `${location.origin}${location.pathname}?seed=${seed}&quiz=${quizIndex + 1}`;
     const linkEl = document.getElementById("share-url");
     linkEl.textContent = shareUrl;
     linkEl.href = shareUrl;
@@ -262,7 +268,10 @@ function init() {
     const raw = params.get("seed");
     seed = raw && SCHEDULE[raw] ? raw : TODAY_HASH;
 
-    keyword = SCHEDULE[seed];
+    const quizParam = parseInt(params.get("quiz") || "1", 10);
+    quizIndex = Math.max(0, Math.min(4, quizParam - 1));
+
+    keyword = SCHEDULE[seed][quizIndex];
 
     const infoEl = document.getElementById("keyword-info");
     const strong = document.createElement("strong");
@@ -303,10 +312,20 @@ function init() {
             location.href = `${location.pathname}?seed=${HASH_TIMELINE[dayIndex + 1]}`;
     });
 
+    // Quiz navigator
+    document.querySelectorAll(".quiz-btn").forEach((btn) => {
+        const qi = parseInt(btn.dataset.quiz, 10) - 1;
+        if (qi === quizIndex) btn.classList.add("active");
+        if (loadProgress(seed, qi)) btn.classList.add("done");
+        btn.addEventListener("click", () => {
+            location.href = `${location.pathname}?seed=${seed}&quiz=${qi + 1}`;
+        });
+    });
+
     // Mark days already completed in the nav
-    if (loadProgress(seed)) currentDateEl.classList.add("done");
-    if (dayIndex > 0 && loadProgress(HASH_TIMELINE[dayIndex - 1])) prevBtn.classList.add("done");
-    if (dayIndex !== -1 && dayIndex < todayIndex && loadProgress(HASH_TIMELINE[dayIndex + 1]))
+    if (isDayDone(seed)) currentDateEl.classList.add("done");
+    if (dayIndex > 0 && isDayDone(HASH_TIMELINE[dayIndex - 1])) prevBtn.classList.add("done");
+    if (dayIndex !== -1 && dayIndex < todayIndex && isDayDone(HASH_TIMELINE[dayIndex + 1]))
         nextBtn.classList.add("done");
 
     document.getElementById("copy-btn").addEventListener("click", handleCopy);
@@ -316,7 +335,7 @@ function init() {
     });
 
     // Already-played flow: replay stored guesses and show win panel immediately
-    const stored = loadProgress(seed);
+    const stored = loadProgress(seed, quizIndex);
     if (stored) {
         guesses = stored.guesses;
         guesses.forEach((g) => renderResultRow(g, evaluateGuess(g, keyword)));

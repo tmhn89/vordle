@@ -68,18 +68,19 @@ function daysBetween(from, to) {
 const today = new Date().toISOString().slice(0, 10);
 const todayHash = hashDate(today);
 
-// Build a 60-day window: 7 days back so recent shares still work, 53 days forward
+// Build a 60-day window: 3 days back so recent shares still work, 57 days forward
 const schedule = {};
-for (let i = -7; i <= 53; i++) {
+for (let i = -3; i <= 57; i++) {
     const date = addDays(today, i);
     const hash = hashDate(date);
     const dayIndex = daysBetween(DAY_ZERO, date);
-    if (dayIndex < 0 || dayIndex >= words.length) continue;
-    schedule[hash] = words[dayIndex].split(" ");
+    const base = dayIndex * 5;
+    if (base < 0 || base + 4 >= words.length) continue;
+    schedule[hash] = [0, 1, 2, 3, 4].map((j) => words[base + j].split(" "));
 }
 
-// Navigation timeline: 7 days back to today
-const lookbackDays = 7;
+// Navigation timeline: 3 days back to today
+const lookbackDays = 3;
 const timeline = [];
 for (let i = -1 * lookbackDays; i <= 0; i++) {
     timeline.push(hashDate(addDays(today, i)));
