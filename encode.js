@@ -47,9 +47,14 @@ if (!process.env.SEED_SALT) {
 // Words appear in file order: words[0] on DAY_ZERO, words[1] the next day, etc.
 // To add new words for future dates, append to word_list.txt. Never reorder.
 const DAY_ZERO = "2026-06-21";
+const WORDS_PER_DAY = 5;
+const LOOKBACK_DAYS = 3;  // how many past days remain accessible via day-nav
+const FORWARD_DAYS = 57;  // pre-baked buffer in case the daily CI cron job fails
+const HASH_LENGTH = 8;
+const MS_PER_DAY = 86400000;
 
 function hashDate(dateStr) {
-    return crypto.createHmac("sha256", salt).update(dateStr).digest("hex").slice(0, 8);
+    return crypto.createHmac("sha256", salt).update(dateStr).digest("hex").slice(0, HASH_LENGTH);
 }
 
 function addDays(dateStr, n) {
@@ -59,30 +64,25 @@ function addDays(dateStr, n) {
 }
 
 function daysBetween(from, to) {
-    const msPerDay = 86400000;
-    return Math.round(
-        (new Date(to + "T00:00:00Z") - new Date(from + "T00:00:00Z")) / msPerDay,
-    );
+    return Math.round((new Date(to + "T00:00:00Z") - new Date(from + "T00:00:00Z")) / MS_PER_DAY);
 }
 
 const today = new Date().toISOString().slice(0, 10);
 const todayHash = hashDate(today);
 
-// Build a 60-day window: 3 days back so recent shares still work, 57 days forward
 const schedule = {};
-for (let i = -3; i <= 57; i++) {
+for (let i = -LOOKBACK_DAYS; i <= FORWARD_DAYS; i++) {
     const date = addDays(today, i);
     const hash = hashDate(date);
     const dayIndex = daysBetween(DAY_ZERO, date);
-    const base = dayIndex * 5;
-    if (base < 0 || base + 4 >= words.length) continue;
-    schedule[hash] = [0, 1, 2, 3, 4].map((j) => words[base + j].split(" "));
+    const base = dayIndex * WORDS_PER_DAY;
+    if (base < 0 || base + WORDS_PER_DAY - 1 >= words.length) continue;
+    schedule[hash] = Array.from({ length: WORDS_PER_DAY }, (_, j) => words[base + j].split(" "));
 }
 
-// Navigation timeline: 3 days back to today
-const lookbackDays = 3;
+// Navigation timeline: LOOKBACK_DAYS back to today
 const timeline = [];
-for (let i = -1 * lookbackDays; i <= 0; i++) {
+for (let i = -LOOKBACK_DAYS; i <= 0; i++) {
     timeline.push(hashDate(addDays(today, i)));
 }
 
@@ -95,6 +95,4 @@ const HASH_TIMELINE = ${JSON.stringify(timeline)};
 `,
     "utf8",
 );
-console.log(
-    `Generated schedule.js (${Object.keys(schedule).length} days, today=${todayHash}, day0=${DAY_ZERO})`,
-);
+console.log(`Generated schedule.js (${Object.keys(schedule).length} days, today=${todayHash}, day0=${DAY_ZERO})`);
