@@ -406,7 +406,7 @@ main {
 }
 
 #share-grid {
-    font-size: var(--fs-lg);
+    font-size: var(--fs-base);
     line-height: 1.5;
     letter-spacing: 2px;
     white-space: pre-wrap;
@@ -414,6 +414,7 @@ main {
     font-family: inherit;
 }
 
+#next-quiz-btn,
 #copy-btn {
     background: var(--color-green);
     color: var(--color-text);
@@ -426,6 +427,8 @@ main {
     transition: background 0.15s;
 }
 
+#next-quiz-btn:hover,
+#next-quiz-btn:active,
 #copy-btn:hover,
 #copy-btn:active {
     background: var(--color-green-hover);

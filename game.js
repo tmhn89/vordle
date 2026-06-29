@@ -28,10 +28,15 @@ const VOWEL_MODIFIER = new Set([CIRCUMFLEX, BREVE, HORN]);
 // Display order: huyền, ngã, hỏi, sắc, nặng
 const TONE_ORDER = ["`", "~", "?", "'", "."];
 
+const WORDS_PER_DAY = 5;
+const WIN_DELAY_MS = 400;
+const COPY_FEEDBACK_MS = 2000;
+
 let seed = "";
 let keyword = [];
 let guesses = [];
 let quizIndex = 0; // 0-based; URL param ?quiz= is 1-based
+let displayDate = "";
 
 function saveProgress(hash, qi, guessArr) {
     try {
@@ -52,7 +57,7 @@ function loadProgress(hash, qi) {
 }
 
 function isDayDone(hash) {
-    return [0, 1, 2, 3, 4].every((i) => loadProgress(hash, i) !== null);
+    return Array.from({ length: WORDS_PER_DAY }, (_, i) => i).every((i) => loadProgress(hash, i) !== null);
 }
 
 // Extract phụ âm, nguyên âm, thanh from an array of syllables.
@@ -200,7 +205,7 @@ function buildEmojiGrid() {
         const result = evaluateGuess(g, keyword);
         return result.map((r) => ({ green: "🟩", yellow: "🟨", red: "🟥" })[r]).join("");
     });
-    return [`Vordle ${seed} (${quizIndex + 1}/5)`, ...rows].join("\n");
+    return [`Tiếng Việt eazy? ${displayDate} (${quizIndex + 1}/${WORDS_PER_DAY})`, ...rows].join("\n");
 }
 
 function showWin() {
@@ -216,6 +221,14 @@ function showWin() {
     const linkEl = document.getElementById("share-url");
     linkEl.textContent = shareUrl;
     linkEl.href = shareUrl;
+
+    if (quizIndex < WORDS_PER_DAY - 1) {
+        const nextQuizBtn = document.getElementById("next-quiz-btn");
+        nextQuizBtn.classList.remove("hidden");
+        nextQuizBtn.addEventListener("click", () => {
+            location.href = `${location.pathname}?seed=${seed}&quiz=${quizIndex + 2}`;
+        });
+    }
 
     document.getElementById("win-panel").classList.remove("hidden");
 }
@@ -239,7 +252,7 @@ function handleSubmit() {
     renderResultRow(guess, result);
 
     if (result.every((r) => r === "green")) {
-        setTimeout(showWin, 400);
+        setTimeout(showWin, WIN_DELAY_MS);
         return;
     }
 
@@ -259,7 +272,7 @@ function handleCopy() {
         btn.textContent = "Đã sao chép!";
         setTimeout(() => {
             btn.textContent = orig;
-        }, 2000);
+        }, COPY_FEEDBACK_MS);
     });
 }
 
@@ -269,7 +282,7 @@ function init() {
     seed = raw && SCHEDULE[raw] ? raw : TODAY_HASH;
 
     const quizParam = parseInt(params.get("quiz") || "1", 10);
-    quizIndex = Math.max(0, Math.min(4, quizParam - 1));
+    quizIndex = Math.max(0, Math.min(WORDS_PER_DAY - 1, quizParam - 1));
 
     keyword = SCHEDULE[seed][quizIndex];
 
@@ -288,12 +301,11 @@ function init() {
     const todayIndex = HASH_TIMELINE.length - 1;
 
     const dateOffset = dayIndex === -1 ? null : dayIndex - todayIndex;
-    const displayDate = (() => {
-        if (dateOffset === null) return "";
+    if (dateOffset !== null) {
         const [y, m, d] = TODAY_DATE.split("-").map(Number);
         const utc = new Date(Date.UTC(y, m - 1, d + dateOffset));
-        return utc.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
-    })();
+        displayDate = utc.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
+    }
 
     const currentDateEl = document.getElementById("current-date");
     currentDateEl.textContent = displayDate;

@@ -46,10 +46,10 @@ if (!process.env.SEED_SALT) {
 // Day 0: the first word in word_list.txt maps to this date.
 // Words appear in file order: words[0] on DAY_ZERO, words[1] the next day, etc.
 // To add new words for future dates, append to word_list.txt. Never reorder.
-const DAY_ZERO = "2026-06-21";
+const DAY_ZERO = "2026-06-24";
 const WORDS_PER_DAY = 5;
-const LOOKBACK_DAYS = 3;  // how many past days remain accessible via day-nav
-const FORWARD_DAYS = 57;  // pre-baked buffer in case the daily CI cron job fails
+const LOOKBACK_DAYS = 1; // how many past days remain accessible via day-nav
+const FORWARD_DAYS = 57; // pre-baked buffer in case the daily CI cron job fails
 const HASH_LENGTH = 8;
 const MS_PER_DAY = 86400000;
 
