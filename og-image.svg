@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#121213"/>
+
+  <g transform="translate(420,75) scale(3)">
+    <rect width="120" height="120" rx="18" fill="#1a1a1b"/>
+
+    <!-- 3×3 grid: tile=30, gap=6, step=36, start=9 -->
+    <!-- Row 0 -->
+    <rect x="9"  y="9"  width="30" height="30" rx="5" fill="#538d4e"/>
+    <text x="24" y="24" text-anchor="middle" dominant-baseline="central"
+          fill="#ffffffdd" font-size="16" font-family="'Segoe UI',system-ui,serif">ă</text>
+    <rect x="45" y="9"  width="30" height="30" rx="5" fill="#b59f3b"/>
+    <rect x="81" y="9"  width="30" height="30" rx="5" fill="#538d4e"/>
+    <text x="96" y="24" text-anchor="middle" dominant-baseline="central"
+          fill="#ffffffdd" font-size="16" font-family="'Segoe UI',system-ui,serif">â</text>
+
+    <!-- Row 1 -->
+    <rect x="9"  y="45" width="30" height="30" rx="5" fill="#538d4e"/>
+    <rect x="45" y="45" width="30" height="30" rx="5" fill="#3a3a3c"/>
+    <rect x="81" y="45" width="30" height="30" rx="5" fill="#538d4e"/>
+
+    <!-- Row 2 -->
+    <rect x="9"  y="81" width="30" height="30" rx="5" fill="#b59f3b"/>
+    <rect x="45" y="81" width="30" height="30" rx="5" fill="#538d4e"/>
+    <text x="60" y="96" text-anchor="middle" dominant-baseline="central"
+          fill="#ffffffdd" font-size="16" font-family="'Segoe UI',system-ui,serif">~</text>
+    <rect x="81" y="81" width="30" height="30" rx="5" fill="#8b2020"/>
+  </g>
+</svg>

@@ -1,5 +1,17 @@
 # LOG.md
 
+## 2026-06-30 — Social sharing meta tags for Instagram/social link previews
+
+Bug: sharing the Vordle link via Instagram showed a broken/garbled logo and no description in the preview card.
+
+**Root cause:** `index.html` had no `og:*`/`twitter:*` meta tags at all — only a `<meta name="description">` (search engines only, not social crawlers) and an SVG favicon. Most social crawlers (Instagram included) don't render SVG for preview images and fall back to mangling whatever icon they can find; without `og:image` there's also nothing for them to grab a description from.
+
+**Fix:**
+- Added `og-image.svg` (1200×630, reuses the 3×3 tile grid art from `logo.svg`, no baked-in text), rasterized to `og-image.png` plus `apple-touch-icon.png` (180×180) and `favicon-32.png` (32×32) via a one-off local `sharp` invocation (not added as a repo dependency — no `package.json`/`node_modules` committed, consistent with the project's no-build, no-CDN-dependency approach).
+- Added `og:type`, `og:title`, `og:description`, `og:url`, `og:image` (+ width/height) and `twitter:card`/`twitter:title`/`twitter:description`/`twitter:image` to `index.html`. `og:image`/`og:url` use the absolute `https://tmhn89.github.io/vordle/` URL since the site is hosted at a GitHub Pages project subpath, not root.
+- Added PNG favicon/apple-touch-icon links alongside the existing SVG favicon (kept for browsers that support it).
+- No CSP change needed — `default-src 'self'` already covers the new same-origin image assets.
+
 ## 2026-06-30 — Fix double-submit on Enter during IME composition
 
 When the player pressed Enter to finalize a composed syllable (blue underline on Mac), the submit fired twice. Root cause: Mac IME generates two `keydown` events for the composition-ending Enter — one with `isComposing: true` (ends the IME session) and one with `isComposing: false` (the actual Enter action). Both were hitting the document keydown handler and calling `handleSubmit` twice.
