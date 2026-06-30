@@ -191,6 +191,24 @@ function initHighlightToggle() {
     });
 }
 
+function initHowToModal() {
+    const overlay = document.getElementById("howto-overlay");
+    const openBtn = document.getElementById("howto-btn");
+    const closeBtn = document.getElementById("howto-close-btn");
+
+    const open = () => overlay.classList.remove("hidden");
+    const close = () => overlay.classList.add("hidden");
+
+    openBtn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) close();
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !overlay.classList.contains("hidden")) close();
+    });
+}
+
 function renderInputRow() {
     const row = document.getElementById("input-row");
     row.innerHTML = "";
@@ -418,6 +436,7 @@ function init() {
     });
 
     initHighlightToggle();
+    initHowToModal();
 
     // Already-played flow: replay stored guesses and show win panel immediately
     const stored = loadProgress(seed, quizIndex);
@@ -431,7 +450,12 @@ function init() {
     document.getElementById("submit-btn").addEventListener("click", handleSubmit);
 
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.isComposing && document.getElementById("win-panel").classList.contains("hidden")) {
+        if (
+            e.key === "Enter" &&
+            !e.isComposing &&
+            document.getElementById("win-panel").classList.contains("hidden") &&
+            document.getElementById("howto-overlay").classList.contains("hidden")
+        ) {
             // Skip when isComposing: Mac IME fires two Enter keydowns when the player
             // presses Enter mid-composition — one with isComposing=true (ends the IME
             // session) and one with isComposing=false (the actual Enter action).

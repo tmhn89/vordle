@@ -247,10 +247,13 @@ main {
     word-break: break-all;
 }
 
-/* Highlight toggle */
+/* Hint section toggles */
 .hint-toggle-row {
     margin-top: var(--space-1);
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
 }
 
 .hint-toggle-btn {
@@ -483,6 +486,78 @@ main {
 
 .hidden {
     display: none !important;
+}
+
+/* How-to-play modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    z-index: 10;
+}
+
+.modal {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--space-6) var(--space-5);
+    max-width: var(--max-width);
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.modal h2 {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+}
+
+.howto-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-left: var(--space-5);
+    font-size: var(--fs-md);
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+}
+
+.howto-list ul {
+    margin-top: var(--space-1);
+    padding-left: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+#howto-close-btn {
+    align-self: center;
+    background: var(--color-green);
+    color: var(--color-text);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-6);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: var(--space-4);
+}
+
+.howto-note {
+    font-size: var(--fs-md);
+    font-style: italic;
+}
+
+#howto-close-btn:hover,
+#howto-close-btn:active {
+    background: var(--color-green-hover);
 }
 
 @media (max-width: 400px) {

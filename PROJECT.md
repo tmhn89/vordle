@@ -30,6 +30,7 @@
 - [x] Word list fingerprint — `encode.js` writes `WORD_FINGERPRINT` (SHA-256 of word list, 8-char hex) into `schedule.js`; `game.js` clears localStorage on mismatch so reordered word lists never corrupt stored progress
 - [x] Balanced word list — `scramble.js` reorganises `word_list.txt` so each group of 5 follows `[easy, easy, medium, medium, hard]` (difficulty by char count excl. spaces: easy ≤ 11, medium 12–16, hard ≥ 17); 168 words = 34 balanced days + 5 leftover
 - [x] Social sharing meta tags — `og:*`/`twitter:*` tags + PNG icons (`og-image.png`, `apple-touch-icon.png`, `favicon-32.png`) so Instagram/social link previews render the logo and description correctly
+- [x] "Hướng dẫn sử dụng" how-to-play modal — button in the hint section (left-aligned, opposite "Hỗ trợ" toggle); opens a dialog explaining the rules; closes via close button, overlay click, or Escape
 
 ## Phase 3 — Virtual Keyboard (Future)
 

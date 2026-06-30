@@ -59,6 +59,7 @@
                     <span class="hint-items" id="hint-tones"></span>
                 </div>
                 <div class="hint-toggle-row">
+                    <button id="howto-btn" class="hint-toggle-btn" type="button">Hướng dẫn sử dụng</button>
                     <button id="highlight-toggle" class="hint-toggle-btn" type="button" aria-pressed="false">
                         Hỗ trợ: <span id="highlight-toggle-label">Tắt</span>
                     </button>
@@ -72,7 +73,7 @@
                     <div class="input-row" id="input-row"></div>
                 </div>
 
-                <button id="submit-btn" type="button">Gửi</button>
+                <button id="submit-btn" type="button">Nộp bài</button>
 
                 <div class="results" id="results"></div>
             </div>
@@ -88,6 +89,30 @@
             <button id="clear-btn" type="button" aria-label="Xóa kết quả đã lưu" title="Xóa kết quả đã lưu">
                 Xóa kết quả đã lưu
             </button>
+
+            <div class="modal-overlay hidden" id="howto-overlay">
+                <div class="modal" role="dialog" aria-modal="true" aria-labelledby="howto-title">
+                    <h2 id="howto-title">Hướng dẫn sử dụng</h2>
+                    <ol class="howto-list">
+                        <li>Từ khóa là một cụm từ / thành ngữ tiếng Việt có nghĩa</li>
+                        <li>
+                            Dữ kiện bao gồm số âm tiết, cùng toàn bộ phụ âm, nguyên âm và thanh ghép lại hình thành từ
+                            khóa.
+                        </li>
+                        <li>Ghép các dữ kiện thành từng âm tiết, rồi nhập vào các ô tương ứng.</li>
+                        <li>
+                            Sau khi nộp bài, mỗi ô sẽ đổi màu:
+                            <ul>
+                                <li><strong>Xanh lá</strong>: âm tiết đúng và đúng vị trí</li>
+                                <li><strong>Vàng</strong>: âm tiết có trong từ khóa nhưng sai vị trí</li>
+                                <li><strong>Đỏ</strong>: âm tiết không có trong từ khóa</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p class="howto-note">Bật chế độ hỗ trợ để giúp ghi nhớ những dữ kiện đã dùng</p>
+                    <button id="howto-close-btn" type="button">Biết rồi, khổ lắm, nói mãi!</button>
+                </div>
+            </div>
         </main>
 
         <script src="words.js"></script>

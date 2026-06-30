@@ -1,5 +1,13 @@
 # LOG.md
 
+## 2026-06-30 — "Hướng dẫn sử dụng" how-to-play modal
+
+Added a button to open a how-to-play dialog explaining the rules (syllable count, hint letters/tones, green/yellow/red feedback, win condition).
+
+**Placement:** `#howto-btn` added to `.hint-toggle-row` (same row as the existing `#highlight-toggle` "Hỗ trợ" button) — row changed from `text-align: right` to `display: flex; justify-content: space-between` so the new button sits left-aligned while "Hỗ trợ" stays right-aligned.
+
+**Implementation:** follows the existing `.hidden`-class show/hide pattern used by `#win-panel` rather than introducing a new modal library. `#howto-overlay` (fixed, full-screen, dark backdrop) wraps a `.modal` content box; `initHowToModal()` in `game.js` wires open (`#howto-btn` click), and three close paths: `#howto-close-btn` click, clicking the overlay backdrop itself, and Escape. The existing global Enter-to-submit keydown handler was also guarded to skip while the modal is open (mirrors the existing `win-panel` hidden-check) so pressing Enter to close intent doesn't accidentally submit a guess.
+
 ## 2026-06-30 — Social sharing meta tags for Instagram/social link previews
 
 Bug: sharing the Vordle link via Instagram showed a broken/garbled logo and no description in the preview card.
