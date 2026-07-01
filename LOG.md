@@ -1,5 +1,15 @@
 # LOG.md
 
+## 2026-07-01 — Epoch boundary in scramble.js
+
+`scramble.js` now recognises a `#### fixed #####` divider line in `word_list.txt`. Words before the divider are left byte-for-byte untouched (they are already assigned to published dates — reordering would corrupt localStorage progress). Words after the divider are scrambled and difficulty-sorted into balanced `[easy, easy, medium, medium, hard]` day groups as before.
+
+Deduplication checks against the union of both sections, so a word already in the fixed section cannot accidentally reappear in the new section.
+
+If no divider line is found, all words are scrambled — backward-compatible with the pre-divider state.
+
+**To use:** add `#### fixed #####` at the end of the current word list, then append new words below it. Run `node scramble.js` → `node encode.js` as usual.
+
 ## 2026-06-30 — "Hướng dẫn sử dụng" how-to-play modal
 
 Added a button to open a how-to-play dialog explaining the rules (syllable count, hint letters/tones, green/yellow/red feedback, win condition).

@@ -2,6 +2,12 @@
 //   [easy, easy, medium, medium, hard]
 // Difficulty is based on total character count (no spaces); see constants below.
 //
+// Words before the "#### fixed #####" separator line are left untouched —
+// they are already assigned to published dates and must never be reordered.
+// Only words after the separator are scrambled and difficulty-sorted.
+//
+// If no separator line is found, all words are scrambled (backward-compatible).
+//
 // Run: node scramble.js
 // Overwrites word_list.txt in place.
 
@@ -9,6 +15,7 @@ const fs = require("fs");
 const path = require("path");
 
 const FILE = path.join(__dirname, "word_list.txt");
+const SEPARATOR = "#### fixed #####";
 
 const EASY_MAX_CHARS = 11;
 const MEDIUM_MAX_CHARS = 16;
@@ -16,16 +23,31 @@ const EASY_PER_DAY = 2;
 const MEDIUM_PER_DAY = 2;
 const HARD_PER_DAY = 1;
 
-const raw = fs
-    .readFileSync(FILE, "utf8")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("#"));
+const allLines = fs.readFileSync(FILE, "utf8").split("\n").map((l) => l.trim());
 
-// Deduplicate (keep first occurrence)
-const seen = new Set();
+const sepIndex = allLines.findIndex((l) => l === SEPARATOR);
+
+let fixedLines; // kept verbatim
+let candidateLines; // will be scrambled
+
+if (sepIndex === -1) {
+    console.log("No separator found — scrambling all words.");
+    fixedLines = [];
+    candidateLines = allLines;
+} else {
+    fixedLines = allLines.slice(0, sepIndex);
+    candidateLines = allLines.slice(sepIndex + 1);
+}
+
+// Build dedup set seeded with fixed words so new section can't duplicate them
+const seen = new Set(
+    fixedLines.filter((l) => l && !l.startsWith("#")).map((l) => l.toLowerCase()),
+);
+
 const words = [];
-for (const w of raw) {
+for (const line of candidateLines) {
+    const w = line.trim().toLowerCase().replace(/[,.]/g, "");
+    if (!w || w.startsWith("#")) continue;
     if (seen.has(w)) {
         console.warn(`Duplicate removed: "${w}"`);
     } else {
@@ -47,7 +69,7 @@ for (const w of words) {
 }
 
 console.log(
-    `easy(≤${EASY_MAX_CHARS}): ${easy.length}, medium(${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS}): ${medium.length}, hard(≥${MEDIUM_MAX_CHARS + 1}): ${hard.length}`,
+    `New words — easy(≤${EASY_MAX_CHARS}): ${easy.length}, medium(${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS}): ${medium.length}, hard(≥${MEDIUM_MAX_CHARS + 1}): ${hard.length}`,
 );
 
 // Fisher-Yates shuffle
@@ -70,7 +92,7 @@ const maxDays = Math.min(
     Math.floor(hard.length / HARD_PER_DAY),
 );
 
-console.log(`Balanced days: ${maxDays}`);
+console.log(`Balanced days from new words: ${maxDays}`);
 
 // Build day groups: [easy×EASY_PER_DAY, medium×MEDIUM_PER_DAY, hard×HARD_PER_DAY]
 const output = [];
@@ -123,7 +145,17 @@ if (leftovers.length > 0) {
     output.push(...leftovers);
 }
 
-fs.writeFileSync(FILE, output.join("\n") + "\n", "utf8");
+// Compose final file: fixed section + separator + scrambled new section
+const parts = [];
+if (fixedLines.length > 0) {
+    parts.push(...fixedLines);
+    parts.push(SEPARATOR);
+}
+parts.push(...output);
+
+fs.writeFileSync(FILE, parts.join("\n") + "\n", "utf8");
+
+const fixedCount = fixedLines.filter((l) => l && !l.startsWith("#")).length;
 console.log(
-    `Written ${output.length} words to word_list.txt (${maxDays} balanced days + ${leftovers.length} leftover)`,
+    `Written to word_list.txt: ${fixedCount} fixed + ${output.length} new (${maxDays} balanced days + ${leftovers.length} leftover)`,
 );
