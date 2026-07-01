@@ -132,13 +132,12 @@ if (leftovers.length > 0) {
         const pairsByMedium = Math.floor(leftoverMedium.length / MEDIUM_PER_DAY);
         const need = Math.max(pairsByEasy, pairsByMedium, leftoverHard.length);
         if (need > 0) {
-            if (pairsByEasy < need) needs.push(`${(need - pairsByEasy) * EASY_PER_DAY} easy (≤${EASY_MAX_CHARS} chr)`);
-            if (pairsByMedium < need)
-                needs.push(
-                    `${(need - pairsByMedium) * MEDIUM_PER_DAY} medium (${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS} chr)`,
-                );
-            if (leftoverHard.length < need)
-                needs.push(`${(need - leftoverHard.length) * HARD_PER_DAY} hard (≥${MEDIUM_MAX_CHARS + 1} chr)`);
+            const needEasy = need * EASY_PER_DAY - leftoverEasy.length;
+            const needMedium = need * MEDIUM_PER_DAY - leftoverMedium.length;
+            const needHard = need * HARD_PER_DAY - leftoverHard.length;
+            if (needEasy > 0) needs.push(`${needEasy} easy (≤${EASY_MAX_CHARS} chr)`);
+            if (needMedium > 0) needs.push(`${needMedium} medium (${EASY_MAX_CHARS + 1}-${MEDIUM_MAX_CHARS} chr)`);
+            if (needHard > 0) needs.push(`${needHard} hard (≥${MEDIUM_MAX_CHARS + 1} chr)`);
             console.log(`  → to add ${need} more balanced day(s): add ${needs.join(" + ")} to word_list.txt`);
         }
     }
