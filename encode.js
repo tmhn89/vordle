@@ -72,13 +72,15 @@ function daysBetween(from, to) {
 const today = new Date().toISOString().slice(0, 10);
 const todayHash = hashDate(today);
 
+const totalDays = Math.floor(words.length / WORDS_PER_DAY);
 const schedule = {};
 for (let i = -LOOKBACK_DAYS; i <= FORWARD_DAYS; i++) {
     const date = addDays(today, i);
     const hash = hashDate(date);
     const dayIndex = daysBetween(DAY_ZERO, date);
-    const base = dayIndex * WORDS_PER_DAY;
-    if (base < 0 || base + WORDS_PER_DAY - 1 >= words.length) continue;
+    if (dayIndex < 0) continue;
+    const wrappedIndex = dayIndex % totalDays;
+    const base = wrappedIndex * WORDS_PER_DAY;
     schedule[hash] = Array.from({ length: WORDS_PER_DAY }, (_, j) => words[base + j].split(" "));
 }
 
