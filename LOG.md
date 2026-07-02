@@ -1,5 +1,13 @@
 # LOG.md
 
+## 2026-07-02 — Rotate exhausted word list; drop dead words.js encoding
+
+`encode.js`'s schedule builder now wraps `dayIndex % totalDays` instead of skipping days once `word_list.txt` runs out, so the word list cycles back to day 0 rather than leaving `SCHEDULE` missing entries (which previously crashed the game once today's date fell past the last scheduled day).
+
+Also reduced `FORWARD_DAYS` from 57 to 0: the day-nav UI (`HASH_TIMELINE`) never reaches beyond yesterday/today, and `TODAY_HASH`/`TODAY_DATE` are fixed constants baked in at generation time (not derived from the client's clock), so a forward buffer never actually protected against cron delays — it only exposed extra unreachable future answers in `schedule.js`.
+
+Removed the base64-"encoded" `words.js` output entirely — grep confirmed the `WORDS` variable it declared was never read by `game.js`. It was dead code that also provided no real security (trivially reversible via `atob()`, and `schedule.js` already exposes more). `<script src="words.js">` removed from `index.html`.
+
 ## 2026-07-01 — Epoch boundary in scramble.js
 
 `scramble.js` now recognises a `#### fixed #####` divider line in `word_list.txt`. Words before the divider are left byte-for-byte untouched (they are already assigned to published dates — reordering would corrupt localStorage progress). Words after the divider are scrambled and difficulty-sorted into balanced `[easy, easy, medium, medium, hard]` day groups as before.

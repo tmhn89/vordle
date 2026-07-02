@@ -21,22 +21,6 @@ const words = raw
     .map((w) => w.trim())
     .filter((w) => w && !w.startsWith("#"));
 
-const encoded = Buffer.from(JSON.stringify(words)).toString("base64");
-
-fs.writeFileSync(
-    path.join(__dirname, "words.js"),
-    `const WORDS = JSON.parse(
-  new TextDecoder().decode(
-    Uint8Array.from(atob(
-      "${encoded}"
-    ), c => c.charCodeAt(0))
-  )
-).map(p => p.split(" "));
-`,
-    "utf8",
-);
-console.log(`Encoded ${words.length} words → words.js`);
-
 // --- Schedule ---
 const salt = process.env.SEED_SALT || "dev-salt";
 if (!process.env.SEED_SALT) {
@@ -49,7 +33,7 @@ if (!process.env.SEED_SALT) {
 const DAY_ZERO = "2026-06-28";
 const WORDS_PER_DAY = 5;
 const LOOKBACK_DAYS = 1; // how many past days remain accessible via day-nav
-const FORWARD_DAYS = 57; // pre-baked buffer in case the daily CI cron job fails
+const FORWARD_DAYS = 0; // day-nav never reaches beyond today; schedule regenerates fresh from real current date each run
 const HASH_LENGTH = 8;
 const MS_PER_DAY = 86400000;
 
